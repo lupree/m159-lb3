@@ -88,13 +88,13 @@ echo $hostnameContent > $hostnamePath
 echo -e "${GREEN}Network Settings configured successfully${NC}"
 echo -e "${YELLOW}Configuring KDC Role${NC}"
 
-samba-tool domain provision << EOF
-BIODESIGN$upperGroupCode.LAN
-BIODESIGN$upperGroupCode
-dc
-SAMBA_INTERNAL
-8.8.8.8
-SmL12345**
+samba-tool domain provision << EOL
+echo "BIODESIGN$upperGroupCode.LAN"
+echo "BIODESIGN$upperGroupCode"
+echo "dc"
+echo "SAMBA_INTERNAL"
+echo "8.8.8.8"
+echo "SmL12345**"
 
 systemctl disable systemd-resolved
 systemctl stop systemd-resolved
