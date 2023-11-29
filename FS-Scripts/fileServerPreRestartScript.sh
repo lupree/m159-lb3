@@ -104,14 +104,6 @@ cat /dev/null > $hostnamePath
 echo $hostnameContent > $hostnamePath
 
 echo -e "${GREEN}Network Settings configured successfully${NC}"
-echo -e "${YELLOW}Installing Packages${NC}"
-
-export DEBIAN_FRONTEND=noninteractive
-apt update 2> /dev/null > /dev/null
-apt-get install -y samba samba-common-bin smbclient heimdal-clients libpam-heimdal libnss-winbind libpam-winbind 2> /dev/null > /dev/null
-export DEBIAN_FRONTEND=dialog
-
-echo -e "${GREEN}Packages installed successfully${NC}"
 echo -e "${YELLOW}Configuring Samba${NC}"
 
 sambaContent=$(cat << EOL
