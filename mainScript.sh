@@ -51,17 +51,24 @@ fi
 
 echo -e "${YELLOW}Input Variables successfully verified${NC}"
 
+sshKeyName="ssh-$groupCode-key"
+sshKeyPath="/home/vmadmin/.ssh/$sshKeyName"
+sshPublicKey="$sshKeyPath.pub"
+
+ssh-keygen -t rsa -b 2048 -f $sshKeyPath -N ""
+
 if ping -c 1 $kdcIP &> /dev/null; then
-    scp ./KDC-Scripts/kdcPreRestartScript.sh vmadmin@$kdcIP:~/kdcPreRestartScript.sh
+    ssh-copy-id -i $sshPublicKey $kdcIP
+    scp -i $sshPublicKey ./KDC-Scripts/kdcPreRestartScript.sh vmadmin@$kdcIP:~/kdcPreRestartScript.sh
     echo -e "${GREEN}KDC-Script has been copied to the KDC${NC}"
     echo -e "${BLUE}Running KDC-Script${NC}"
-    ssh vmadmin@$kdcIP "sudo chmod +x ./kdcPreRestartScript.sh; sudo ./kdcPreRestartScript.sh -g $groupCode; sudo rm ./kdcPreRestartScript.sh; sudo reboot"
+    ssh -i $sshPublicKey vmadmin@$kdcIP "sudo chmod +x ./kdcPreRestartScript.sh; sudo ./kdcPreRestartScript.sh -g $groupCode; sudo rm ./kdcPreRestartScript.sh; sudo reboot"
     echo -e "${GREEN}Restarting KDC${NC}"
-    until ssh -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
+    until ssh -i $sshPublicKey -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
         sleep 5
     done
-    scp ./KDC-Scripts/kdcPostRestartScript.sh vmadmin@$kdcIP:~/kdcPostRestartScript.sh
-    ssh vmadmin@$kdcIP "sudo chmod +x ./kdcPostRestartScript.sh; sudo ./kdcPostRestartScript.sh -g $groupCode; sudo rm ./kdcPostRestartScript.sh"
+    scp -i $sshPublicKey ./KDC-Scripts/kdcPostRestartScript.sh vmadmin@$kdcIP:~/kdcPostRestartScript.sh
+    ssh -i $sshPublicKey vmadmin@$kdcIP "sudo chmod +x ./kdcPostRestartScript.sh; sudo ./kdcPostRestartScript.sh -g $groupCode; sudo rm ./kdcPostRestartScript.sh"
     echo -e "${GREEN}KDC-Script has run successfully${NC}"
 else
     echo -e "${RED}KDC is unreachable${NC}"
@@ -69,18 +76,19 @@ else
 fi
 
 if ping -c 1 $fileServerIP &> /dev/null; then
-    scp ./FS-Scripts/fileServerPreRestartScript.sh vmadmin@$fileServerIP:~/fileServerPreRestartScript.sh
+    ssh-copy-id -i $sshPublicKey $fileServerIP
+    scp -i $sshPublicKey ./FS-Scripts/fileServerPreRestartScript.sh vmadmin@$fileServerIP:~/fileServerPreRestartScript.sh
     echo -e "${GREEN}Fileserver-Script has been copied to the Fileserver${NC}"
     echo -e "${BLUE}Running Fileserver-Script${NC}"
-    ssh vmadmin@$fileServerIP "sudo chmod +x ./fileServerPreRestartScript.sh; sudo ./fileServerPreRestartScript.sh -g $groupCode; sudo rm ./fileServerPreRestartScript.sh; reboot"
+    ssh -i $sshPublicKey vmadmin@$fileServerIP "sudo chmod +x ./fileServerPreRestartScript.sh; sudo ./fileServerPreRestartScript.sh -g $groupCode; sudo rm ./fileServerPreRestartScript.sh; reboot"
     echo -e "${GREEN}Restarting Fileserver${NC}"
-    until ssh -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
+    until ssh -i $sshPublicKey -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
         sleep 5
     done
-    scp ./KDC-Scripts/fileServerPostRestartScript.sh vmadmin@$kdcIP:~/fileServerPostRestartScript.sh
-    ssh vmadmin@$kdcIP "sudo chmod +x ./fileServerPostRestartScript.sh; sudo ./fileServerPostRestartScript.sh -g $groupCode; sudo rm ./kdcPostRestartScript.sh ; sudo reboot"
+    scp -i $sshPublicKey ./FS-Scripts/fileServerPostRestartScript.sh vmadmin@$kdcIP:~/fileServerPostRestartScript.sh
+    ssh -i $sshPublicKey vmadmin@$kdcIP "sudo chmod +x ./fileServerPostRestartScript.sh; sudo ./fileServerPostRestartScript.sh -g $groupCode; sudo rm ./kdcPostRestartScript.sh ; sudo reboot"
     echo -e "${GREEN}Restarting Fileserver${NC}"
-    until ssh -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
+    until ssh -i $sshPublicKey -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
         sleep 5
     done
     echo -e "${GREEN}Fileserver-Script has run successfully${NC}"
