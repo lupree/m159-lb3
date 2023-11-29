@@ -58,7 +58,7 @@ sshPublicKey="$sshKeyPath.pub"
 ssh-keygen -t rsa -b 2048 -f $sshKeyPath -N ""
 
 if ping -c 1 $kdcIP &> /dev/null; then
-    ssh-copy-id -i $sshPublicKey $kdcIP
+    ssh-copy-id -i $sshPublicKey $kdcIP vmadmin@$kdcIP
     scp -i $sshPublicKey ./KDC-Scripts/kdcPreRestartScript.sh vmadmin@$kdcIP:~/kdcPreRestartScript.sh
     echo -e "${GREEN}KDC-Script has been copied to the KDC${NC}"
     echo -e "${BLUE}Running KDC-Script${NC}"
@@ -76,7 +76,7 @@ else
 fi
 
 if ping -c 1 $fileServerIP &> /dev/null; then
-    ssh-copy-id -i $sshPublicKey $fileServerIP
+    ssh-copy-id -i $sshPublicKey $fileServerIP vmadmin@$fileServerIP 
     scp -i $sshPublicKey ./FS-Scripts/fileServerPreRestartScript.sh vmadmin@$fileServerIP:~/fileServerPreRestartScript.sh
     echo -e "${GREEN}Fileserver-Script has been copied to the Fileserver${NC}"
     echo -e "${BLUE}Running Fileserver-Script${NC}"
