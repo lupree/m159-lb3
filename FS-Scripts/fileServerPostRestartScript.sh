@@ -31,8 +31,6 @@ EOF
 echo -e "${GREEN}Real joined successfully${NC}"
 echo -e "${YELLOW}Configuring Winbind${NC}"
 
-winbindContent=$(cat 
-)
 
 winbindPath="/etc/nsswitch.conf"
 mv $winbindPath $winbindPath".old"

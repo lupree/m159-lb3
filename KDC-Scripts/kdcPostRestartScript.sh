@@ -23,6 +23,15 @@ done
 lowerGroupCode=$(echo $groupCode | tr '[:upper:]' '[:lower:]')
 upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
+echo -e "${YELLOW}Configuring resolv.conf${NC}"
+
+resolvPath="/etc/resolv.conf"
+sudo rm $resolvPath
+sudo cat > $resolvPath << EOF
+nameserver 192.168.110.61
+search biodesign$lowerGroupCode.lan
+EOF
+
 echo -e "${YELLOW}Configuring Kerberos Authentication Settings${NC}"
 
 kerberosPath="/etc/krb5.conf"
@@ -34,7 +43,7 @@ cat > $kerberosPath << EOF
 	default_realm=BIODESIGN$upperGroupCode.LAN
 	fcc-mit-ticketflags=true
 [realms]
-	SAM159.IET-GIBB.CH={
+	BIODESIGN$upperGroupCode.LAN={
 		kdc=vmLS1.biodesign$lowerGroupCode.lan
 		admin_server=vmLS1.biodesign$lowerGroupCode.lan
 	}

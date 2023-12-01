@@ -51,21 +51,6 @@ network:
 EOF
 netplan apply 2> /dev/null > /dev/null
 
-echo -e "${YELLOW}Configuring Search Domain in Resolved${NC}"
-
-resolvedContent=$(cat << EOF
-[Resolve]
-Domains=biodesign$lowerGroupCode.lan
-EOF
-)
-
-resolvedPath="/etc/systemd/resolved.conf"
-mv $resolvedPath $resolvedPath".old"
-touch $resolvedPath
-chmod 644 $resolvedPath
-echo "$resolvedContent" > $resolvedPath
-
-systemctl restart systemd-resolved
 
 
 
@@ -88,21 +73,32 @@ EOF
 
 echo -e "${YELLOW}Configuring Hostname${NC}"
 
-hostnameContent=$(cat << EOF
-vmLS2.biodesign$lowerGroupCode.lan
-EOF
-)
-
 hostnamePath="/etc/hostname"
 cat /dev/null > $hostnamePath
-echo $hostnameContent > $hostnamePath
+cat > $hostnamePath << EOF
+vmLS2.biodesign$lowerGroupCode.lan
+EOF
+
+echo -e "${YELLOW}Configuring Search Domain in Resolved${NC}"
+
+resolvedPath="/etc/systemd/resolved.conf"
+mv $resolvedPath $resolvedPath".old"
+touch $resolvedPath
+chmod 644 $resolvedPath
+cat > $resolvedPath << EOF
+[Resolve]
+Domains=biodesign$lowerGroupCode.lan
+EOF
+
+systemctl restart systemd-resolved
 
 echo -e "${GREEN}Network Settings configured successfully${NC}"
 echo -e "${YELLOW}Installing Packages${NC}"
 
 export DEBIAN_FRONTEND=noninteractive
 apt update 2> /dev/null > /dev/null
-apt-get install -y samba samba-common-bin smbclient heimdal-clients libpam-heimdal libnss-winbind libpam-winbind 2> /dev/null > /dev/null
+apt upgrade -y 2> /dev/null > /dev/null
+apt install -y samba samba-common-bin smbclient heimdal-clients libpam-heimdal libnss-winbind libpam-winbind 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
 echo -e "${GREEN}Packages installed successfully${NC}"
@@ -123,8 +119,8 @@ cat > $sambaPath << EOF
 	winbind refresh tickets = yes
 	template shell = /bin/bash
 	idmap config * : range = 10000 - 19999
-	idmap config SAM159 : backend = rid
-	idmap config SAM159 : range = 1000000 - 1999999
+	idmap config BIODESIGN$upperGroupCode : backend = rid
+	idmap config BIODESIGN$upperGroupCode : range = 1000000 - 1999999
 	inherit acls = yes
 	store dos attributes = yes
 	client ipc signing = auto
