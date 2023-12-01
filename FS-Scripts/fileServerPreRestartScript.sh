@@ -98,7 +98,8 @@ echo -e "${YELLOW}Installing Packages${NC}"
 export DEBIAN_FRONTEND=noninteractive
 apt update 2> /dev/null > /dev/null
 apt upgrade -y 2> /dev/null > /dev/null
-apt install -y samba samba-common-bin smbclient heimdal-clients libpam-heimdal libnss-winbind libpam-winbind 2> /dev/null > /dev/null
+apt install -y samba samba-common-bin smbclient heimdal-clients libpam-heimdal 2> /dev/null > /dev/null
+apt install -y libnss-winbind libpam-winbind 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
 echo -e "${GREEN}Packages installed successfully${NC}"

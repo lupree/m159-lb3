@@ -50,7 +50,7 @@ network:
           via: 192.168.110.2
   version: 2
 EOF
-netplan apply > /dev/null
+netplan apply 2> /dev/null > /dev/null
 
 echo -e "${YELLOW}Configuring Hosts File${NC}"
 
@@ -95,6 +95,7 @@ systemctl disable systemd-resolved
 systemctl stop systemd-resolved
 
 resolvPath="/etc/resolv.conf"
+rm -f $resolvPath
 cat > $resolvPath << EOF
 nameserver 192.168.110.61
 search biodesign$lowerGroupCode.lan

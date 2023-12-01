@@ -62,7 +62,14 @@ if ping -c 1 $kdcIP &> /dev/null; then
     done
     scp ./KDC-Scripts/kdcPostRestartScript.sh vmadmin@$kdcIP:~/kdcPostRestartScript.sh
     ssh vmadmin@$kdcIP "sudo chmod +x ./kdcPostRestartScript.sh; sudo ./kdcPostRestartScript.sh -g $groupCode; sudo rm ./kdcPostRestartScript.sh"
-    echo -e "${GREEN}KDC-Script has run successfully${NC}"
+    until ssh -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
+        sleep 5
+    done
+    if nslookup "google.com" &> /dev/null; then
+        echo -e "${GREEN}KDC-Script has run successfully${NC}"
+    else
+        echo -e "${RED}Name resolution on KDC does not work. Please check DNS Settings${NC}"
+    fi
 else
     echo -e "${RED}KDC is unreachable${NC}"
     exit
@@ -83,7 +90,11 @@ if ping -c 1 $fileServerIP &> /dev/null; then
     until ssh -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
         sleep 5
     done
-    echo -e "${GREEN}Fileserver-Script has run successfully${NC}"
+    if nslookup "google.com" &> /dev/null; then
+        echo -e "${GREEN}Fileserver-Script has run successfully${NC}"
+    else
+        echo -e "${RED}Name resolution on Fileserver does not work. Please check DNS Settings${NC}"
+    fi
 else
     echo -e "${RED}Fileserver is unreachable${NC}"
     exit

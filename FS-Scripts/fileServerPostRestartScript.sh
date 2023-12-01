@@ -24,6 +24,8 @@ upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
 echo -e "${YELLOW}Joining Realm${NC}"
 
+echo -e "${YELLOW}Joining Realm${NC}"
+
 net ads join -U Administrator << EOF
 SmL12345**
 EOF
