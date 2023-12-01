@@ -19,7 +19,7 @@ Help()
 {
    echo "This Script creates the whole Environment for the LB3 of Module M159"
    echo
-   echo "Syntax: ./$(basename "$0") [-g|-k|-f|-h]"
+   echo "Syntax: ./$(basename "$0") [-g|-h]"
    echo "options:"
    echo "    -g     Set the Group Code. (required)"
    echo "    -h     Display this Help Message."

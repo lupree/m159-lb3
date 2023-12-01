@@ -19,18 +19,26 @@ while getopts ":g:" option; do
     esac
 done
 
-lowerGroupCode=$groupCode | tr '[:upper:]' '[:lower:]'
-upperGroupCode=$groupCode | tr '[:lower:]' '[:upper:]'
+lowerGroupCode=$(echo $groupCode | tr '[:upper:]' '[:lower:]')
+upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
 echo -e "${YELLOW}Joining Realm${NC}"
 
 net ads join -U Administrator << EOF
 SmL12345**
+EOF
 
 echo -e "${GREEN}Real joined successfully${NC}"
 echo -e "${YELLOW}Configuring Winbind${NC}"
 
-winbindContent=$(cat << EOL
+winbindContent=$(cat 
+)
+
+winbindPath="/etc/nsswitch.conf"
+mv $winbindPath $winbindPath".old"
+touch $winbindPath
+chmod 644 $winbindPath
+cat > $winbindPath << EOF
 passwd:         files systemd winbind
 group:          files systemd winbind
 shadow:         files
@@ -45,14 +53,7 @@ ethers:         db files
 rpc:            db files
 
 netgroup:       nis
-EOL
-)
-
-winbindPath="/etc/nsswitch.conf"
-mv $winbindPath $winbindPath".old"
-touch $winbindPath
-chmod 644 $winbindPath
-echo "$winbindContent" > $winbindPath
+EOF
 
 echo -e "${GREEN}Winbind configured successfully${NC}"
 echo -e "${YELLOW}Configuring Samba Registry Management${NC}"
@@ -63,15 +64,11 @@ net conf import $sambaPath
 rm $sambaPath".old"
 mv $sambaPath $sambaPath".old"
 touch $sambaPath
-chmod 644 $sambaPath
-
-sambaContent=$(cat << EOL
+chmod 644 $sambapath
+cat > $sambaPath << EOF
 [global]
 	config backend = registry
-EOL
-)
-
-echo "$sambaContent" > $sambaPath
+EOF
 
 echo -e "${GREEN}Samba Registry Management configured successfully${NC}"
 echo -e "${YELLOW}${NC}"

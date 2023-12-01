@@ -19,8 +19,8 @@ while getopts ":g:" option; do
     esac
 done
 
-lowerGroupCode=$groupCode | tr '[:upper:]' '[:lower:]'
-upperGroupCode=$groupCode | tr '[:lower:]' '[:upper:]'
+lowerGroupCode=$(echo $groupCode | tr '[:upper:]' '[:lower:]')
+upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
 echo -e "${YELLOW}Configuring Network File Server${NC}"
 
@@ -28,7 +28,11 @@ echo -e "${YELLOW}Configuring Network Settings${NC}"
 
 echo -e "${YELLOW}Configuring Netplan${NC}"
 
-netplanContent=$(cat << EOL
+netplanPath="/etc/netplan/00-eth0.yaml"
+mv $netplanPath $netplanPath".old"
+touch $netplanPath
+chmod 600 $netplanPath
+cat > $netplanPath << EOF
 ---
 network:
   ethernets:
@@ -44,22 +48,15 @@ network:
         - to: default
           via: 192.168.110.2
   version: 2
-EOL
-)
-
-netplanPath="/etc/netplan/00-eth0.yaml"
-mv $netplanPath $netplanPath".old"
-touch $netplanPath
-chmod 600 $netplanPath
-echo "$netplanContent" > $netplanPath
+EOF
 netplan apply 2> /dev/null > /dev/null
 
 echo -e "${YELLOW}Configuring Search Domain in Resolved${NC}"
 
-resolvedContent=$(cat << EOL
+resolvedContent=$(cat << EOF
 [Resolve]
 Domains=biodesign$lowerGroupCode.lan
-EOL
+EOF
 )
 
 resolvedPath="/etc/systemd/resolved.conf"
@@ -74,7 +71,9 @@ systemctl restart systemd-resolved
 
 echo -e "${YELLOW}Configuring Hosts File${NC}"
 
-hostsContent=$(cat << EOL
+hostsPath="/etc/hosts"
+cat /dev/null > $hostsPath
+cat > $hostsPath << EOF
 127.0.0.1       localhost.localdomain                 localhost
 127.0.0.1       vmLS2.biodesign$lowerGroupCode.lan    vmLS2
 192.168.110.61  vmLS2.biodesign$lowerGroupCode.lan    vmLS2
@@ -85,18 +84,13 @@ fe00::0 ip6-localnet
 ff00::0 ip6-mcastprefix
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
-EOL
-)
-
-hostsPath="/etc/hosts"
-cat /dev/null > $hostsPath
-echo $hostsContent > $hostsPath
+EOF
 
 echo -e "${YELLOW}Configuring Hostname${NC}"
 
-hostnameContent=$(cat << EOL
+hostnameContent=$(cat << EOF
 vmLS2.biodesign$lowerGroupCode.lan
-EOL
+EOF
 )
 
 hostnamePath="/etc/hostname"
@@ -114,7 +108,11 @@ export DEBIAN_FRONTEND=dialog
 echo -e "${GREEN}Packages installed successfully${NC}"
 echo -e "${YELLOW}Configuring Samba${NC}"
 
-sambaContent=$(cat << EOL
+sambaPath="/etc/samba/smb.conf"
+mv $sambaPath $sambaPath".old"
+touch $sambaPath
+chmod 644 $sambaPath
+cat > $sambaPath << EOF
 [global]
 	workgroup = BIODESIGN$upperGroupCode
 	realm = BIODESIGN$upperGroupCode.LAN
@@ -131,14 +129,7 @@ sambaContent=$(cat << EOL
 	store dos attributes = yes
 	client ipc signing = auto
 	vfs objects = acl_xattr
-EOL
-)
-
-sambaPath="/etc/samba/smb.conf"
-mv $sambaPath $sambaPath".old"
-touch $sambaPath
-chmod 644 $sambaPath
-echo "$sambaContent" > $sambaPath
+EOF
 smbcontrol all reload-config
 
 echo -e "${GREEN}Samba configured successfully${NC}"
