@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rm .ssh/known_hosts
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -50,6 +52,30 @@ if [ -z "$groupCode" ] || [ -z "$kdcIP" ] || [ -z "$fileServerIP" ]; then
 fi
 
 echo -e "${YELLOW}Input Variables successfully verified${NC}"
+
+echo -e "${YELLOW}Updating Packages${NC}"
+
+export DEBIAN_FRONTEND=noninteractive
+apt update 2> /dev/null > /dev/null
+apt upgrade -y 2> /dev/null > /dev/null
+export DEBIAN_FRONTEND=dialog
+
+echo -e "${YELLOW}Packages updated successfully${NC}"
+echo -e "${YELLOW}Generating new SSH Keypair${NC}"
+
+ssh-keygen -t rsa -b 2048 -f "$HOME/.ssh/id_rsa" -N ""
+
+echo -e "${YELLOW}Copying new SSH Keypair to KDC${NC}"
+ssh-copy-id vmadmin@$kdcIP << EOF
+yes
+sml12345
+EOF
+
+echo -e "${YELLOW}Copying new SSH Keypair to File Server${NC}"
+ssh-copy-id vmadmin@$fileServerIP << EOF
+yes
+sml12345
+EOF
 
 if ping -c 1 $kdcIP &> /dev/null; then
     scp ./KDC-Scripts/kdcPreRestartScript.sh vmadmin@$kdcIP:~/kdcPreRestartScript.sh
