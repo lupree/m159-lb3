@@ -45,19 +45,21 @@ if ping -c 1 $kdcIP &> /dev/null; then
     scp -o StrictHostKeyChecking=no ./DomainController/kdcPreRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPreRestartScript.sh 2> /dev/null >/dev/null
     echo -e "${BLUE}LP1: ${GREEN}KDC-Scripts have been copied to the KDC${NC}"
     echo -e "${BLUE}LP1: ${BLUE}Running KDC-Script${NC}"
-    ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcPreRestartScript.sh; sudo /tmp/kdcPreRestartScript.sh -g $groupCode; sudo rm /tmp/kdcPreRestartScript.sh; sudo reboot"
+    ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcPreRestartScript.sh; sudo /tmp/kdcPreRestartScript.sh -g $groupCode; sudo rm /tmp/kdcPreRestartScript.sh"
+    ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo reboot" 2> /dev/null > /dev/null
     echo -e "${BLUE}LP1: ${GREEN}Restarting KDC${NC}"
     until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
         sleep 5
     done
     scp -o StrictHostKeyChecking=no ./DomainController/kdcPostRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPostRestartScript.sh 2> /dev/null >/dev/null
-    ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcPostRestartScript.sh; sudo /tmp/kdcPostRestartScript.sh -g $groupCode; sudo rm /tmp/kdcPostRestartScript.sh; sudo reboot"
+    ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcPostRestartScript.sh; sudo /tmp/kdcPostRestartScript.sh -g $groupCode; sudo rm /tmp/kdcPostRestartScript.sh"
+    ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo reboot" 2> /dev/null > /dev/null
     echo -e "${BLUE}LP1: ${GREEN}Restarting KDC${NC}"
     until ssh -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
         sleep 5
     done
     result=$(ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "dig +short 'google.com'")
-    if [ -n "$result" ] > /dev/null 2> /dev/null; then
+    if [[ $result =~ "^([0-9]{1,3}\.){3}[0-9]{1,3}$" ]] > /dev/null 2> /dev/null; then
         echo $result
         echo -e "${BLUE}LP1: ${GREEN}KDC-Script has run successfully${NC}"
     else
