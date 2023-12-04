@@ -90,7 +90,7 @@ EOF
 unlink /etc/resolv.conf
 
 resolvPath="/etc/resolv.conf"
-sudo rm $resolvPath
+sudo rm -f $resolvPath
 sudo cat > $resolvPath << EOF
 nameserver 8.8.8.8
 search biodesign$lowerGroupCode.lan
@@ -130,18 +130,18 @@ EOF
 echo -e "${BLUE}    KDC: ${GREEN}Kerberos Authentication Settings configured successfully${NC}"
 echo -e "${BLUE}    KDC: ${YELLOW}Configuring DNS Settings${NC}"
 
-systemctl mask smbd nmbd winbind
-systemctl disable smbd nmbd winbind
-systemctl stop smbd nmbd winbind
-systemctl unmask samba-ad-dc
-systemctl enable samba-ad-dc
-systemctl start samba-ad-dc
+systemctl mask smbd nmbd winbind 2> /dev/null > /dev/null
+systemctl disable smbd nmbd winbind 2> /dev/null > /dev/null
+systemctl stop smbd nmbd winbind 2> /dev/null > /dev/null
+systemctl unmask samba-ad-dc 2> /dev/null > /dev/null
+systemctl enable samba-ad-dc 2> /dev/null > /dev/null
+systemctl start samba-ad-dc 2> /dev/null > /dev/null
 
 systemctl stop systemd-resolved
 systemctl disable systemd-resolved
 
 resolvPath="/etc/resolv.conf"
-sudo rm $resolvPath
+sudo rm -f $resolvPath
 sudo cat > $resolvPath << EOF
 nameserver 192.168.110.61
 search biodesign$lowerGroupCode.lan
