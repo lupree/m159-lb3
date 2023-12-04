@@ -70,13 +70,13 @@ apt upgrade -y 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
 echo -e "${GREEN}Packages updated successfully${NC}"
-echo -e "${YELLOW}Installing Git${NC}"
+echo -e "${YELLOW}Installing Packages${NC}"
 
 export DEBIAN_FRONTEND=noninteractive
-apt install -y git 2> /dev/null > /dev/null
+apt install -y git sshpass 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
-echo -e "${GREEN}Git installed successfully${NC}"
+echo -e "${GREEN}Packages installed successfully${NC}"
 echo -e "${YELLOW}Cloning Repository${NC}"
 
 git clone https://Beutlus:$githubPAT@github.com/lupree/m159-lb3.git /tmp/m159 2>/dev/null >/dev/null
