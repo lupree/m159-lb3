@@ -56,6 +56,7 @@ echo -e "${YELLOW}Verifying Input Variables${NC}"
 
 if [ -z "$groupCode" ] || [ -z "$githubPAT" ]; then
     echo -e "${RED}One or more required parameters are missing${NC}"
+    Help
     exit
 fi
 
@@ -85,5 +86,5 @@ echo -e "${YELLOW}Running Main Script${NC}"
 
 chmod +x /tmp/m159/mainScript.sh
 /tmp/m159/mainScript.sh -g $groupCode
- 
+
 rm -rf /tmp/m159
