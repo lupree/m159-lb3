@@ -34,10 +34,10 @@ rm -f "$HOME/.ssh/id_rsa.pub"
 
 ssh-keygen -t rsa -b 2048 -f "$HOME/.ssh/id_rsa" -N "" 2> /dev/null > /dev/null
 
-echo -e "${BLUE}LP1: ${YELLOW}Copying SSH Keypair to KDC${NC}"
+echo -e "${BLUE}LP1: ${YELLOW}Copying SSH Public Key to KDC${NC}"
 sshpass -p "sml12345" ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$kdcIP 2> /dev/null > /dev/null
 
-echo -e "${BLUE}LP1: ${YELLOW}Copying SSH Keypair to File Server${NC}"
+echo -e "${BLUE}LP1: ${YELLOW}Copying SSH Public Key to File Server${NC}"
 sshpass -p "sml12345" ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$fileServerIP 2> /dev/null > /dev/null
 
 if ping -c 1 $kdcIP &> /dev/null; then

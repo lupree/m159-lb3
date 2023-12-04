@@ -67,8 +67,6 @@ if [ -z "$groupCode" ] || [ -z "$githubPAT" ]; then
     exit
 fi
 
-echo -e "${YELLOW}Input Variables successfully verified${NC}"
-
 echo -e "${YELLOW}Updating Packages (This can take a few Minutes)${NC}"
 
 export DEBIAN_FRONTEND=noninteractive
@@ -76,19 +74,16 @@ apt update 2> /dev/null > /dev/null
 apt upgrade -y 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
-echo -e "${GREEN}Packages updated successfully${NC}"
 echo -e "${YELLOW}Installing Packages${NC}"
 
 export DEBIAN_FRONTEND=noninteractive
 apt install -y git sshpass 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
-echo -e "${GREEN}Packages installed successfully${NC}"
 echo -e "${YELLOW}Cloning Repository${NC}"
 
 git clone https://Beutlus:$githubPAT@github.com/lupree/m159-lb3.git /tmp/m159 2>/dev/null >/dev/null
 
-echo -e "${GREEN}Repository cloned successfully${NC}"
 echo -e "${YELLOW}Running Main Script${NC}"
 
 chmod +x /tmp/m159/mainScript.sh
