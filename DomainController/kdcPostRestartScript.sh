@@ -23,36 +23,6 @@ done
 lowerGroupCode=$(echo $groupCode | tr '[:upper:]' '[:lower:]')
 upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
-echo -e "${BLUE}    KDC: ${YELLOW}Configuring resolv.conf${NC}"
-
-resolvPath="/etc/resolv.conf"
-sudo rm $resolvPath
-sudo cat > $resolvPath << EOF
-nameserver 192.168.110.61
-search biodesign$lowerGroupCode.lan
-EOF
-
-echo -e "${BLUE}    KDC: ${YELLOW}Configuring Kerberos Authentication Settings${NC}"
-
-kerberosPath="/etc/krb5.conf"
-mv $kerberosPath $kerberosPath".old"
-touch $kerberosPath
-chmod 644 $kerberosPath
-cat > $kerberosPath << EOF
-[libdefaults]
-	default_realm=BIODESIGN$upperGroupCode.LAN
-	fcc-mit-ticketflags=true
-[realms]
-	BIODESIGN$upperGroupCode.LAN={
-		kdc=vmLS1.biodesign$lowerGroupCode.lan
-		admin_server=vmLS1.biodesign$lowerGroupCode.lan
-	}
-[domain_realm]
-	.biodesign$lowerGroupCode.lan=BIODESIGN$upperGroupCode.LAN
-	biodesign$lowerGroupCode.lan=BIODESIGN$upperGroupCode.LAN
-EOF
-
-echo -e "${BLUE}    KDC: ${GREEN}Kerberos Authentication Settings configured successfully${NC}"
 echo -e "${BLUE}    KDC: ${YELLOW}Adding DNS Records${NC}"
 
 samba-tool dns zonecreate vmls1 110.168.192.in-addr.arpa -U administrator << EOF

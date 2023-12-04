@@ -87,35 +87,65 @@ cat > $hostnamePath << EOF
 vmLS1.biodesign$lowerGroupCode.lan
 EOF
 
-resolvedPath="/etc/systemd/resolved.conf"
-cat > $resolvedPath << EOF
-[Resolve]
-DNS=8.8.8.8
-Domains=biodesign$lowerGroupCode.lan
+unlink /etc/resolv.conf
+
+resolvPath="/etc/resolv.conf"
+sudo rm $resolvPath
+sudo cat > $resolvPath << EOF
+nameserver 8.8.8.8
+search biodesign$lowerGroupCode.lan
 EOF
-systemctl restart systemd-resolved
 
 echo -e "${BLUE}    KDC: ${GREEN}Network Settings configured successfully${NC}"
 echo -e "${BLUE}    KDC: ${YELLOW}Configuring KDC Role${NC}"
 
-rm -f /etc/samba/smb.conf
+mv -f /etc/samba/smb.conf /etc/samba/smb.conf.old
+mv -f /etc/krb5.conf /etc/krb5.conf.old
 samba-tool domain provision --realm "BIODESIGN$upperGroupCode.LAN" --domain "BIODESIGN$upperGroupCode" --adminpass "SmL12345**" --server-role "dc" --dns-backend "SAMBA_INTERNAL" --quiet 2> /dev/null > /dev/null
 
-systemctl disable systemd-resolved
-systemctl stop systemd-resolved
+echo -e "${BLUE}    KDC: ${GREEN}KDC Role configured successfully${NC}"
+echo -e "${BLUE}    KDC: ${YELLOW}Configuring Kerberos Authentication Settings${NC}"
 
-resolvPath="/etc/resolv.conf"
-rm -f $resolvPath
-cat > $resolvPath << EOF
-nameserver 192.168.110.61
-search biodesign$lowerGroupCode.lan
+kerberosPath="/etc/krb5.conf"
+mv $kerberosPath $kerberosPath".old"
+touch $kerberosPath
+chmod 644 $kerberosPath
+cat > $kerberosPath << EOF
+[libdefaults]
+	default_realm = BIODESIGN$upperGroupCode.LAN
+	fcc-mit-ticketflags = true
+    dns_lookup_realm = false
+    dns_lookup_kdc = true
+[realms]
+	BIODESIGN$upperGroupCode.LAN = {
+		kdc = vmLS1.biodesign$lowerGroupCode.lan
+		admin_server = vmLS1.biodesign$lowerGroupCode.lan
+        default_domain = biodesign$lowerGroupCode.lan
+	}
+[domain_realm]
+	.biodesign$lowerGroupCode.lan = BIODESIGN$upperGroupCode.LAN
+	biodesign$lowerGroupCode.lan = BIODESIGN$upperGroupCode.LAN
+    vmLS1 =  BIODESIGN$upperGroupCode.LAN
 EOF
 
-echo -e "${BLUE}    KDC: ${GREEN}KDC Role configured successfully${NC}"
+echo -e "${BLUE}    KDC: ${GREEN}Kerberos Authentication Settings configured successfully${NC}"
 echo -e "${BLUE}    KDC: ${YELLOW}Configuring DNS Settings${NC}"
 
+systemctl mask smbd nmbd winbind
+systemctl disable smbd nmbd winbind
+systemctl stop smbd nmbd winbind
 systemctl unmask samba-ad-dc
 systemctl enable samba-ad-dc
 systemctl start samba-ad-dc
+
+systemctl stop systemd-resolved
+systemctl disable systemd-resolved
+
+resolvPath="/etc/resolv.conf"
+sudo rm $resolvPath
+sudo cat > $resolvPath << EOF
+nameserver 192.168.110.61
+search biodesign$lowerGroupCode.lan
+EOF
 
 echo -e "${BLUE}    KDC: ${GREEN}DNS Settings configured successfully${NC}"
