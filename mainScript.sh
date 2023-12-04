@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd /tmp/m159
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -42,6 +44,7 @@ sml12345
 EOF
 
 if ping -c 1 $kdcIP &> /dev/null; then
+    pwd
     scp -o StrictHostKeyChecking=no ./DomainController/kdcPreRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPreRestartScript.sh
     scp -o StrictHostKeyChecking=no ./DomainController/kdcPostRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPostRestartScript.sh
     echo -e "${BLUE}LP1: ${GREEN}KDC-Scripts have been copied to the KDC${NC}"
