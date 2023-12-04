@@ -31,8 +31,6 @@ apt update 2> /dev/null > /dev/null
 apt upgrade -y 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
-echo -e "${BLUE}    KDC: ${GREEN}Packages updated successfully${NC}"
-
 echo -e "${BLUE}    KDC: ${YELLOW}Configuring Network File Server${NC}"
 
 echo -e "${BLUE}    KDC: ${YELLOW}Configuring Network Settings${NC}"
@@ -70,6 +68,7 @@ cat > $hostsPath << EOF
 127.0.0.1       localhost.localdomain    localhost
 127.0.0.1       vmLS1.biodesign$lowerGroupCode.lan    vmLS1
 192.168.110.61  vmLS1.biodesign$lowerGroupCode.lan    vmLS1
+192.168.110.61  vmLS1.biodesignXY.lan    vmLS1
 
 # The following lines are desirable for IPv6 capable hosts
 ::1     ip6-localhost ip6-loopback
@@ -87,7 +86,7 @@ cat > $hostnamePath << EOF
 vmLS1.biodesign$lowerGroupCode.lan
 EOF
 
-unlink /etc/resolv.conf
+unlink /etc/resolv.conf 2> /dev/null > /dev/null
 
 resolvPath="/etc/resolv.conf"
 sudo rm -f $resolvPath
@@ -137,8 +136,8 @@ systemctl unmask samba-ad-dc 2> /dev/null > /dev/null
 systemctl enable samba-ad-dc 2> /dev/null > /dev/null
 systemctl start samba-ad-dc 2> /dev/null > /dev/null
 
-systemctl stop systemd-resolved
-systemctl disable systemd-resolved
+systemctl stop systemd-resolved 2> /dev/null > /dev/null
+systemctl disable systemd-resolved 2> /dev/null > /dev/null
 
 resolvPath="/etc/resolv.conf"
 sudo rm -f $resolvPath
