@@ -61,7 +61,6 @@ if ping -c 1 $kdcIP &> /dev/null; then
     done
     result=$(ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "dig +short 'google.com'")
     if [[ $result =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] > /dev/null 2> /dev/null; then
-        echo $result
         echo -e "${BLUE}LP1: ${GREEN}KDC-Script has run successfully${NC}"
     else
         echo -e "${BLUE}LP1: ${RED}Name resolution on KDC does not work. Please check DNS Settings${NC}"
