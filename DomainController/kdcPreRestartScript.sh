@@ -95,14 +95,12 @@ nameserver 8.8.8.8
 search biodesign$lowerGroupCode.lan
 EOF
 
-echo -e "${BLUE}    KDC: ${GREEN}Network Settings configured successfully${NC}"
-echo -e "${BLUE}    KDC: ${YELLOW}Configuring KDC Role${NC}"
+echo -e "${BLUE}    KDC: ${YELLOW}Provisioning the Realm${NC}"
 
 rm -f /etc/samba/smb.conf /etc/samba/smb.conf.old
 rm -f /etc/krb5.conf /etc/krb5.conf.old
 samba-tool domain provision --realm "BIODESIGN$upperGroupCode.LAN" --domain "BIODESIGN$upperGroupCode" --adminpass "SmL12345**" --server-role "dc" --dns-backend "SAMBA_INTERNAL" --quiet 2> /dev/null > /dev/null
 
-echo -e "${BLUE}    KDC: ${GREEN}KDC Role configured successfully${NC}"
 echo -e "${BLUE}    KDC: ${YELLOW}Configuring Kerberos Authentication Settings${NC}"
 
 kerberosPath="/etc/krb5.conf"
@@ -126,7 +124,6 @@ cat > $kerberosPath << EOF
     vmLS1 =  BIODESIGN$upperGroupCode.LAN
 EOF
 
-echo -e "${BLUE}    KDC: ${GREEN}Kerberos Authentication Settings configured successfully${NC}"
 echo -e "${BLUE}    KDC: ${YELLOW}Configuring DNS Settings${NC}"
 
 systemctl mask smbd nmbd winbind 2> /dev/null > /dev/null
@@ -145,5 +142,3 @@ sudo cat > $resolvPath << EOF
 nameserver 192.168.110.61
 search biodesign$lowerGroupCode.lan
 EOF
-
-echo -e "${BLUE}    KDC: ${GREEN}DNS Settings configured successfully${NC}"

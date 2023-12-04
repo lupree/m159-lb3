@@ -52,6 +52,4 @@ samba-tool dns add vmLS1.biodesign$lowerGroupCode.lan 110.168.192.in-addr.arpa 3
 samba-tool dns add vmLS1.biodesign$lowerGroupCode.lan 110.168.192.in-addr.arpa 62 PTR vmLS2.biodesign$lowerGroupCode -U administrator --password="SmL12345**" 2> /dev/null > /dev/null
 samba-tool dns add vmLS1.biodesign$lowerGroupCode.lan 110.168.192.in-addr.arpa 10 PTR vmWP1.biodesign$lowerGroupCode -U administrator --password="SmL12345**" 2> /dev/null > /dev/null
 
-echo -e "${BLUE}    KDC: ${GREEN}DNS Records added successfully${NC}"
-
 samba_dnsupdate
