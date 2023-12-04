@@ -14,6 +14,13 @@ kdcIP='192.168.110.61'
 fileServerIP='192.168.110.62'
 groupCode=''
 
+cleanup()
+{
+    rm -rf /tmp/m159
+}
+
+trap cleanup EXIT
+
 Help()
 {
    echo "This Script creates the whole Environment for the LB3 of Module M159"
@@ -87,4 +94,4 @@ echo -e "${YELLOW}Running Main Script${NC}"
 chmod +x /tmp/m159/mainScript.sh
 /tmp/m159/mainScript.sh -g $groupCode
 
-rm -rf /tmp/m159
+cleanup
