@@ -29,45 +29,43 @@ done
 
 rm -f /home/vmadmin/.ssh/known_hosts
 
-echo -e "${GREEN}Test Script works"
+echo -e "${BLUE}KDC: ${YELLOW}Generating new SSH Keypair${NC}"
 
-# echo -e "${BLUE}KDC: ${YELLOW}Generating new SSH Keypair${NC}"
-# 
-# ssh-keygen -t rsa -b 2048 -f "$HOME/.ssh/id_rsa" -N ""
-# 
-# echo -e "${BLUE}KDC: ${YELLOW}Copying new SSH Keypair to KDC${NC}"
-# ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$kdcIP << EOF
-# sml12345
-# EOF
-# 
-# echo -e "${BLUE}KDC: ${YELLOW}Copying new SSH Keypair to File Server${NC}"
-# ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$fileServerIP << EOF
-# sml12345
-# EOF
-# 
-# if ping -c 1 $kdcIP &> /dev/null; then
-#     scp -o StrictHostKeyChecking=no ./KDC-Scripts/kdcPreRestartScript.sh vmadmin@$kdcIP:~/kdcPreRestartScript.sh
-#     echo -e "${BLUE}KDC: ${GREEN}KDC-Script has been copied to the KDC${NC}"
-#     echo -e "${BLUE}KDC: ${BLUE}Running KDC-Script${NC}"
-#     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x ./kdcPreRestartScript.sh; sudo ./kdcPreRestartScript.sh -g $groupCode; sudo rm ./kdcPreRestartScript.sh; sudo reboot"
-#     echo -e "${BLUE}KDC: ${GREEN}Restarting KDC${NC}"
-#     until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
-#         sleep 5
-#     done
-#     scp -o StrictHostKeyChecking=no ./KDC-Scripts/kdcPostRestartScript.sh vmadmin@$kdcIP:~/kdcPostRestartScript.sh
-#     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x ./kdcPostRestartScript.sh; sudo ./kdcPostRestartScript.sh -g $groupCode; sudo rm ./kdcPostRestartScript.sh"
-#     until ssh -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
-#         sleep 5
-#     done
-#     if nslookup "google.com" &> /dev/null; then
-#         echo -e "${BLUE}KDC: ${GREEN}KDC-Script has run successfully${NC}"
-#     else
-#         echo -e "${BLUE}KDC: ${RED}Name resolution on KDC does not work. Please check DNS Settings${NC}"
-#     fi
-# else
-#     echo -e "${BLUE}KDC: ${RED}KDC is unreachable${NC}"
-#     exit
-# fi
+ssh-keygen -t rsa -b 2048 -f "$HOME/.ssh/id_rsa" -N ""
+
+echo -e "${BLUE}KDC: ${YELLOW}Copying new SSH Keypair to KDC${NC}"
+ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$kdcIP << EOF
+sml12345
+EOF
+
+echo -e "${BLUE}KDC: ${YELLOW}Copying new SSH Keypair to File Server${NC}"
+ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$fileServerIP << EOF
+sml12345
+EOF
+
+if ping -c 1 $kdcIP &> /dev/null; then
+    scp -o StrictHostKeyChecking=no ./KDC-Scripts/kdcPreRestartScript.sh vmadmin@$kdcIP:~/kdcPreRestartScript.sh
+    echo -e "${BLUE}KDC: ${GREEN}KDC-Script has been copied to the KDC${NC}"
+    echo -e "${BLUE}KDC: ${BLUE}Running KDC-Script${NC}"
+    ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x ./kdcPreRestartScript.sh; sudo ./kdcPreRestartScript.sh -g $groupCode; sudo rm ./kdcPreRestartScript.sh; sudo reboot"
+    echo -e "${BLUE}KDC: ${GREEN}Restarting KDC${NC}"
+    until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
+        sleep 5
+    done
+    scp -o StrictHostKeyChecking=no ./KDC-Scripts/kdcPostRestartScript.sh vmadmin@$kdcIP:~/kdcPostRestartScript.sh
+    ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x ./kdcPostRestartScript.sh; sudo ./kdcPostRestartScript.sh -g $groupCode; sudo rm ./kdcPostRestartScript.sh"
+    until ssh -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
+        sleep 5
+    done
+    if nslookup "google.com" &> /dev/null; then
+        echo -e "${BLUE}KDC: ${GREEN}KDC-Script has run successfully${NC}"
+    else
+        echo -e "${BLUE}KDC: ${RED}Name resolution on KDC does not work. Please check DNS Settings${NC}"
+    fi
+else
+    echo -e "${BLUE}KDC: ${RED}KDC is unreachable${NC}"
+    exit
+fi
 # 
 # if ping -c 1 $fileServerIP &> /dev/null; then
 #     scp ./FS-Scripts/fileServerPreRestartScript.sh vmadmin@$fileServerIP:~/fileServerPreRestartScript.sh
