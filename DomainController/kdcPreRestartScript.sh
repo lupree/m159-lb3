@@ -14,7 +14,7 @@ while getopts ":g:" option; do
             if [ ${#OPTARG} -eq 2 ] && [ -n "$OPTARG" ]; then
                 groupCode=$OPTARG
             else
-                echo -e "${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
+                echo -e "${BLUE}    KDC: ${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
                 exit
             fi;;
     esac
@@ -24,20 +24,20 @@ lowerGroupCode=$(echo $groupCode | tr '[:upper:]' '[:lower:]')
 upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
 
-echo -e "${YELLOW}Updating Packages${NC}"
+echo -e "${BLUE}    KDC: ${YELLOW}Updating Packages${NC}"
 
 export DEBIAN_FRONTEND=noninteractive
 apt update 2> /dev/null > /dev/null
 apt upgrade -y 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
-echo -e "${GREEN}Packages updated successfully${NC}"
+echo -e "${BLUE}    KDC: ${GREEN}Packages updated successfully${NC}"
 
-echo -e "${YELLOW}Configuring Network File Server${NC}"
+echo -e "${BLUE}    KDC: ${YELLOW}Configuring Network File Server${NC}"
 
-echo -e "${YELLOW}Configuring Network Settings${NC}"
+echo -e "${BLUE}    KDC: ${YELLOW}Configuring Network Settings${NC}"
 
-echo -e "${YELLOW}Configuring Netplan${NC}"
+echo -e "${BLUE}    KDC: ${YELLOW}Configuring Netplan${NC}"
 
 netplanPath="/etc/netplan/00-eth0.yaml"
 mv $netplanPath $netplanPath".old"
@@ -62,7 +62,7 @@ network:
 EOF
 netplan apply 2> /dev/null > /dev/null
 
-echo -e "${YELLOW}Configuring Hosts File${NC}"
+echo -e "${BLUE}    KDC: ${YELLOW}Configuring Hosts File${NC}"
 
 hostsPath="/etc/hosts"
 cat /dev/null > $hostsPath
@@ -79,7 +79,7 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 EOF
 
-echo -e "${YELLOW}Configuring Hostname${NC}"
+echo -e "${BLUE}    KDC: ${YELLOW}Configuring Hostname${NC}"
 
 hostnamePath="/etc/hostname"
 cat /dev/null > $hostnamePath
@@ -95,8 +95,8 @@ Domains=biodesign$lowerGroupCode.lan
 EOF
 systemctl restart systemd-resolved
 
-echo -e "${GREEN}Network Settings configured successfully${NC}"
-echo -e "${YELLOW}Configuring KDC Role${NC}"
+echo -e "${BLUE}    KDC: ${GREEN}Network Settings configured successfully${NC}"
+echo -e "${BLUE}    KDC: ${YELLOW}Configuring KDC Role${NC}"
 
 rm -f /etc/samba/smb.conf
 samba-tool domain provision --realm "BIODESIGN$upperGroupCode.LAN" --domain "BIODESIGN$upperGroupCode" --adminpass "SmL12345**" --server-role "dc" --dns-backend "SAMBA_INTERNAL" --quiet 2> /dev/null > /dev/null
@@ -111,11 +111,11 @@ nameserver 192.168.110.61
 search biodesign$lowerGroupCode.lan
 EOF
 
-echo -e "${GREEN}KDC Role configured successfully${NC}"
-echo -e "${YELLOW}Configuring DNS Settings${NC}"
+echo -e "${BLUE}    KDC: ${GREEN}KDC Role configured successfully${NC}"
+echo -e "${BLUE}    KDC: ${YELLOW}Configuring DNS Settings${NC}"
 
 systemctl unmask samba-ad-dc
 systemctl enable samba-ad-dc
 systemctl start samba-ad-dc
 
-echo -e "${GREEN}DNS Settings configured successfully${NC}"
+echo -e "${BLUE}    KDC: ${GREEN}DNS Settings configured successfully${NC}"

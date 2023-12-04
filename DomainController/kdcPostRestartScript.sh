@@ -14,7 +14,7 @@ while getopts ":g:" option; do
             if [ ${#OPTARG} -eq 2 ] && [ -n "$OPTARG" ]; then
                 groupCode=$OPTARG
             else
-                echo -e "${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
+                echo -e "${BLUE}    KDC: ${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
                 exit
             fi;;
     esac
@@ -23,7 +23,7 @@ done
 lowerGroupCode=$(echo $groupCode | tr '[:upper:]' '[:lower:]')
 upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
-echo -e "${YELLOW}Configuring resolv.conf${NC}"
+echo -e "${BLUE}    KDC: ${YELLOW}Configuring resolv.conf${NC}"
 
 resolvPath="/etc/resolv.conf"
 sudo rm $resolvPath
@@ -32,7 +32,7 @@ nameserver 192.168.110.61
 search biodesign$lowerGroupCode.lan
 EOF
 
-echo -e "${YELLOW}Configuring Kerberos Authentication Settings${NC}"
+echo -e "${BLUE}    KDC: ${YELLOW}Configuring Kerberos Authentication Settings${NC}"
 
 kerberosPath="/etc/krb5.conf"
 mv $kerberosPath $kerberosPath".old"
@@ -52,8 +52,8 @@ cat > $kerberosPath << EOF
 	biodesign$lowerGroupCode.lan=BIODESIGN$upperGroupCode.LAN
 EOF
 
-echo -e "${GREEN}Kerberos Authentication Settings configured successfully${NC}"
-echo -e "${YELLOW}Adding DNS Records${NC}"
+echo -e "${BLUE}    KDC: ${GREEN}Kerberos Authentication Settings configured successfully${NC}"
+echo -e "${BLUE}    KDC: ${YELLOW}Adding DNS Records${NC}"
 
 samba-tool dns zonecreate vmls1 110.168.192.in-addr.arpa -U administrator << EOF
 SmL12345**
@@ -74,4 +74,4 @@ samba-tool dns add vmLS1.biodesign$lowerGroupCode.lan 110.168.192.in-addr.arpa 6
 SmL12345**
 EOF
 
-echo -e "${GREEN}DNS Records added successfully${NC}"
+echo -e "${BLUE}    KDC: ${GREEN}DNS Records added successfully${NC}"
