@@ -70,27 +70,27 @@ else
     exit
 fi
 
-if ping -c 1 $fileServerIP &> /dev/null; then
-    scp ./FS-Scripts/fileServerPreRestartScript.sh vmadmin@$fileServerIP:~/fileServerPreRestartScript.sh
-    echo -e "${GREEN}Fileserver-Script has been copied to the Fileserver${NC}"
-    echo -e "${BLUE}Running Fileserver-Script${NC}"
-    ssh vmadmin@$fileServerIP "sudo chmod +x ./fileServerPreRestartScript.sh; sudo ./fileServerPreRestartScript.sh -g $groupCode; sudo rm ./fileServerPreRestartScript.sh; reboot"
-    echo -e "${GREEN}Restarting Fileserver${NC}"
-    until ssh -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
-        sleep 5
-    done
-    scp ./FS-Scripts/fileServerPostRestartScript.sh vmadmin@$kdcIP:~/fileServerPostRestartScript.sh
-    ssh vmadmin@$kdcIP "sudo chmod +x ./fileServerPostRestartScript.sh; sudo ./fileServerPostRestartScript.sh -g $groupCode; sudo rm ./kdcPostRestartScript.sh ; sudo reboot"
-    echo -e "${GREEN}Restarting Fileserver${NC}"
-    until ssh -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
-        sleep 5
-    done
-    if nslookup "google.com" &> /dev/null; then
-        echo -e "${GREEN}Fileserver-Script has run successfully${NC}"
-    else
-        echo -e "${RED}Name resolution on Fileserver does not work. Please check DNS Settings${NC}"
-    fi
-else
-    echo -e "${RED}Fileserver is unreachable${NC}"
-    exit
-fi
+# if ping -c 1 $fileServerIP &> /dev/null; then
+#     scp ./FS-Scripts/fileServerPreRestartScript.sh vmadmin@$fileServerIP:~/fileServerPreRestartScript.sh
+#     echo -e "${GREEN}Fileserver-Script has been copied to the Fileserver${NC}"
+#     echo -e "${BLUE}Running Fileserver-Script${NC}"
+#     ssh vmadmin@$fileServerIP "sudo chmod +x ./fileServerPreRestartScript.sh; sudo ./fileServerPreRestartScript.sh -g $groupCode; sudo rm ./fileServerPreRestartScript.sh; reboot"
+#     echo -e "${GREEN}Restarting Fileserver${NC}"
+#     until ssh -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
+#         sleep 5
+#     done
+#     scp ./FS-Scripts/fileServerPostRestartScript.sh vmadmin@$kdcIP:~/fileServerPostRestartScript.sh
+#     ssh vmadmin@$kdcIP "sudo chmod +x ./fileServerPostRestartScript.sh; sudo ./fileServerPostRestartScript.sh -g $groupCode; sudo rm ./kdcPostRestartScript.sh ; sudo reboot"
+#     echo -e "${GREEN}Restarting Fileserver${NC}"
+#     until ssh -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
+#         sleep 5
+#     done
+#     if nslookup "google.com" &> /dev/null; then
+#         echo -e "${GREEN}Fileserver-Script has run successfully${NC}"
+#     else
+#         echo -e "${RED}Name resolution on Fileserver does not work. Please check DNS Settings${NC}"
+#     fi
+# else
+#     echo -e "${RED}Fileserver is unreachable${NC}"
+#     exit
+# fi

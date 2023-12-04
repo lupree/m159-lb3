@@ -31,7 +31,7 @@ apt update 2> /dev/null > /dev/null
 apt upgrade -y 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
-echo -e "${YELLOW}Packages updated successfully${NC}"
+echo -e "${GREEN}Packages updated successfully${NC}"
 
 echo -e "${YELLOW}Configuring Network File Server${NC}"
 
