@@ -29,14 +29,8 @@ done
 
 rm -f /home/vmadmin/.ssh/known_hosts
 
-echo -e "${BLUE}KDC: ${YELLOW}Updating Packages on${NC}"
+echo -e "${GREEN}Test Script works"
 
-export DEBIAN_FRONTEND=noninteractive
-apt update 2> /dev/null > /dev/null
-apt upgrade -y 2> /dev/null > /dev/null
-export DEBIAN_FRONTEND=dialog
-
-echo -e "${BLUE}KDC: ${YELLOW}Packages updated successfully${NC}"
 # echo -e "${BLUE}KDC: ${YELLOW}Generating new SSH Keypair${NC}"
 # 
 # ssh-keygen -t rsa -b 2048 -f "$HOME/.ssh/id_rsa" -N ""
