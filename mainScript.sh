@@ -41,7 +41,6 @@ echo -e "${BLUE}LP1: ${YELLOW}Copying SSH Keypair to File Server${NC}"
 sshpass -p "sml12345" ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$fileServerIP 2> /dev/null > /dev/null
 
 if ping -c 1 $kdcIP &> /dev/null; then
-    pwd
     scp -o StrictHostKeyChecking=no ./DomainController/kdcPreRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPreRestartScript.sh 2> /dev/null > /dev/null
     echo -e "${BLUE}LP1: ${GREEN}Pre-Restart KDC-Script have been copied to the KDC${NC}"
     echo -e "${BLUE}LP1: ${BLUE}Running KDC-Script${NC}"
