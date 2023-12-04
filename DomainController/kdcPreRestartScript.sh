@@ -24,7 +24,7 @@ lowerGroupCode=$(echo $groupCode | tr '[:upper:]' '[:lower:]')
 upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
 
-echo -e "${BLUE}    KDC: ${YELLOW}Updating Packages (This can take a few Minutes)${NC}"
+echo -e "${BLUE}    KDC: ${YELLOW}Updating Packages (This might take a few Minutes)${NC}"
 
 export DEBIAN_FRONTEND=noninteractive
 apt update 2> /dev/null > /dev/null

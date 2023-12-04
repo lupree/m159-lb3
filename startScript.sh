@@ -67,7 +67,7 @@ if [ -z "$groupCode" ] || [ -z "$githubPAT" ]; then
     exit
 fi
 
-echo -e "${YELLOW}Updating Packages (This can take a few Minutes)${NC}"
+echo -e "${YELLOW}Updating Packages (This might take a few Minutes)${NC}"
 
 export DEBIAN_FRONTEND=noninteractive
 apt update 2> /dev/null > /dev/null
