@@ -32,7 +32,7 @@ echo -e "${BLUE}LP1: ${YELLOW}Generating new SSH Keypair${NC}"
 rm -f "$HOME/.ssh/id_rsa"
 rm -f "$HOME/.ssh/id_rsa.pub"
 
-ssh-keygen -t rsa -b 2048 -f "$HOME/.ssh/id_rsa" -N ""
+ssh-keygen -t rsa -b 2048 -f "$HOME/.ssh/id_rsa" -N "" 2> /dev/null >/dev/null
 
 echo -e "${BLUE}LP1: ${YELLOW}Copying SSH Keypair to KDC${NC}"
 sshpass -p "sml12345" ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$kdcIP > /dev/null
@@ -42,7 +42,7 @@ sshpass -p "sml12345" ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$fileServe
 
 if ping -c 1 $kdcIP &> /dev/null; then
     pwd
-    scp -o StrictHostKeyChecking=no ./DomainController/kdcPreRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPreRestartScript.sh
+    scp -o StrictHostKeyChecking=no ./DomainController/kdcPreRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPreRestartScript.sh 2> /dev/null >/dev/null
     echo -e "${BLUE}LP1: ${GREEN}KDC-Scripts have been copied to the KDC${NC}"
     echo -e "${BLUE}LP1: ${BLUE}Running KDC-Script${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcPreRestartScript.sh; sudo /tmp/kdcPreRestartScript.sh -g $groupCode; sudo rm /tmp/kdcPreRestartScript.sh; sudo reboot"
@@ -50,7 +50,7 @@ if ping -c 1 $kdcIP &> /dev/null; then
     until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
         sleep 5
     done
-    scp -o StrictHostKeyChecking=no ./DomainController/kdcPostRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPostRestartScript.sh
+    scp -o StrictHostKeyChecking=no ./DomainController/kdcPostRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPostRestartScript.sh 2> /dev/null >/dev/null
     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcPostRestartScript.sh; sudo /tmp/kdcPostRestartScript.sh -g $groupCode; sudo rm /tmp/kdcPostRestartScript.sh; sudo reboot"
     echo -e "${BLUE}LP1: ${GREEN}Restarting KDC${NC}"
     until ssh -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 

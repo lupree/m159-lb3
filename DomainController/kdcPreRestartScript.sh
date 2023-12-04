@@ -24,7 +24,7 @@ lowerGroupCode=$(echo $groupCode | tr '[:upper:]' '[:lower:]')
 upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
 
-echo -e "${BLUE}    KDC: ${YELLOW}Updating Packages${NC}"
+echo -e "${BLUE}    KDC: ${YELLOW}Updating Packages (This can take a few Minutes)${NC}"
 
 export DEBIAN_FRONTEND=noninteractive
 apt update 2> /dev/null > /dev/null
@@ -99,15 +99,14 @@ EOF
 echo -e "${BLUE}    KDC: ${GREEN}Network Settings configured successfully${NC}"
 echo -e "${BLUE}    KDC: ${YELLOW}Configuring KDC Role${NC}"
 
-mv -f /etc/samba/smb.conf /etc/samba/smb.conf.old
-mv -f /etc/krb5.conf /etc/krb5.conf.old
+rm -f /etc/samba/smb.conf /etc/samba/smb.conf.old
+rm -f /etc/krb5.conf /etc/krb5.conf.old
 samba-tool domain provision --realm "BIODESIGN$upperGroupCode.LAN" --domain "BIODESIGN$upperGroupCode" --adminpass "SmL12345**" --server-role "dc" --dns-backend "SAMBA_INTERNAL" --quiet 2> /dev/null > /dev/null
 
 echo -e "${BLUE}    KDC: ${GREEN}KDC Role configured successfully${NC}"
 echo -e "${BLUE}    KDC: ${YELLOW}Configuring Kerberos Authentication Settings${NC}"
 
 kerberosPath="/etc/krb5.conf"
-mv $kerberosPath $kerberosPath".old"
 touch $kerberosPath
 chmod 644 $kerberosPath
 cat > $kerberosPath << EOF

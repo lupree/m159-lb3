@@ -62,7 +62,7 @@ fi
 
 echo -e "${YELLOW}Input Variables successfully verified${NC}"
 
-echo -e "${YELLOW}Updating Packages${NC}"
+echo -e "${YELLOW}Updating Packages (This can take a few Minutes)${NC}"
 
 export DEBIAN_FRONTEND=noninteractive
 apt update 2> /dev/null > /dev/null
