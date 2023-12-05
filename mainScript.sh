@@ -68,7 +68,7 @@ sshpass -p "sml12345" ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$fileServe
 # fi
 
 if ping -c 1 $fileServerIP &> /dev/null; then
-    scp -o StrictHostKeyChecking=no ./Fileserver/fileServerPreRestartScript.sh vmadmin@$kdcIP:/tmp/fileServerPreRestartScript.sh 2> /dev/null > /dev/null
+    scp -o StrictHostKeyChecking=no ./Fileserver/fileServerPreRestartScript.sh vmadmin@$fileServerIP:/tmp/fileServerPreRestartScript.sh 2> /dev/null > /dev/null
     echo -e "${BLUE}LP1: ${BLUE}Running Fileserver-Script${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo chmod +x /tmp/fileServerPreRestartScript.sh; sudo /tmp/fileServerPreRestartScript.sh -g $groupCode; sudo rm /tmp/fileServerPreRestartScript.sh"
     echo -e "${BLUE}LP1: ${BLUE}Restarting Fileserver${NC}"
