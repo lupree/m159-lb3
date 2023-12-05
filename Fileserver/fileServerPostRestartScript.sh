@@ -25,12 +25,9 @@ upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
 echo -e "${BLUE}    FS: ${YELLOW}Joining Realm${NC}"
 
-net ads join -U Administrator << EOF
-SmL12345**
-EOF
+net ads join -U "Administrator%SmL12345**"
 
 echo -e "${BLUE}    FS: ${YELLOW}Configuring Winbind${NC}"
-
 
 winbindPath="/etc/nsswitch.conf"
 mv $winbindPath $winbindPath".old"

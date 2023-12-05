@@ -25,7 +25,7 @@ Help()
 {
    echo "This Script creates the whole Environment for the LB3 of Module M159"
    echo
-   echo "Syntax: ./$(basename "$0") [-g|-h]"
+   echo "Syntax: ./$(basename "$0") [-g|-t|-h]"
    echo "options:"
    echo "    -g     Set the Group Code. (required)"
    echo "    -t     Set the Personal Access Token for the Github Repository. (required)"
