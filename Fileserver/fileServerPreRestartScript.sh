@@ -89,7 +89,7 @@ apt install -y samba samba-common-bin smbclient heimdal-clients libpam-heimdal 2
 apt install -y libnss-winbind libpam-winbind 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
-echo -e "${BLUE}    FS: ${YELLOW}Configuring Smaba${NC}"
+echo -e "${BLUE}    FS: ${YELLOW}Configuring Samba${NC}"
 
 sambaPath="/etc/samba/smb.conf"
 mv $sambaPath $sambaPath".old"
