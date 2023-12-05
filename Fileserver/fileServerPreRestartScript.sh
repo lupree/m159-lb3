@@ -30,10 +30,6 @@ apt update 2> /dev/null > /dev/null
 apt upgrade -y 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
-echo -e "${BLUE}    FS: ${YELLOW}Configuring Network File Server${NC}"
-
-echo -e "${BLUE}    FS: ${YELLOW}Configuring Network Settings${NC}"
-
 echo -e "${BLUE}    FS: ${YELLOW}Configuring Netplan${NC}"
 
 netplanPath="/etc/netplan/00-eth0.yaml"
