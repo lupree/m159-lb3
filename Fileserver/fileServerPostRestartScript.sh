@@ -14,7 +14,8 @@ while getopts ":g:" option; do
             if [ ${#OPTARG} -eq 2 ] && [ -n "$OPTARG" ]; then
                 groupCode=$OPTARG
             else
-                echo -e "${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
+                echo -e "${BLUE}    FS: ${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
+                exit
             fi;;
     esac
 done
@@ -22,16 +23,14 @@ done
 lowerGroupCode=$(echo $groupCode | tr '[:upper:]' '[:lower:]')
 upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
-echo -e "${YELLOW}Joining Realm${NC}"
-
-echo -e "${YELLOW}Joining Realm${NC}"
+echo -e "${BLUE}    FS: ${YELLOW}Joining Realm${NC}"
 
 net ads join -U Administrator << EOF
 SmL12345**
 EOF
 
-echo -e "${GREEN}Real joined successfully${NC}"
-echo -e "${YELLOW}Configuring Winbind${NC}"
+echo -e "${BLUE}    FS: ${GREEN}Real joined successfully${NC}"
+echo -e "${BLUE}    FS: ${YELLOW}Configuring Winbind${NC}"
 
 
 winbindPath="/etc/nsswitch.conf"
@@ -55,8 +54,8 @@ rpc:            db files
 netgroup:       nis
 EOF
 
-echo -e "${GREEN}Winbind configured successfully${NC}"
-echo -e "${YELLOW}Configuring Samba Registry Management${NC}"
+echo -e "${BLUE}    FS: ${GREEN}Winbind configured successfully${NC}"
+echo -e "${BLUE}    FS: ${YELLOW}Configuring Samba Registry Management${NC}"
 
 sambapath="/etc/samba/smb.conf"
 
@@ -70,5 +69,5 @@ cat > $sambaPath << EOF
 	config backend = registry
 EOF
 
-echo -e "${GREEN}Samba Registry Management configured successfully${NC}"
-echo -e "${YELLOW}${NC}"
+echo -e "${BLUE}    FS: ${GREEN}Samba Registry Management configured successfully${NC}"
+echo -e "${BLUE}    FS: ${YELLOW}${NC}"

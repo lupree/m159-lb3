@@ -74,7 +74,7 @@ apt update 2> /dev/null > /dev/null
 apt upgrade -y 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
-echo -e "${BLUE}LP1: ${YELLOW}Installing Packages${NC}"
+echo -e "${BLUE}LP1: ${YELLOW}Installing Packages (This might take a few Minutes)${NC}"
 
 export DEBIAN_FRONTEND=noninteractive
 apt install -y git sshpass 2> /dev/null > /dev/null

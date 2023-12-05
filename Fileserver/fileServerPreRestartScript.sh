@@ -14,7 +14,8 @@ while getopts ":g:" option; do
             if [ ${#OPTARG} -eq 2 ] && [ -n "$OPTARG" ]; then
                 groupCode=$OPTARG
             else
-                echo -e "${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
+                echo -e "${BLUE}    FS: ${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
+                exit
             fi;;
     esac
 done
@@ -22,11 +23,18 @@ done
 lowerGroupCode=$(echo $groupCode | tr '[:upper:]' '[:lower:]')
 upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
-echo -e "${YELLOW}Configuring Network File Server${NC}"
+echo -e "${BLUE}    FS: ${YELLOW}Updating Packages (This might take a few Minutes)${NC}"
 
-echo -e "${YELLOW}Configuring Network Settings${NC}"
+export DEBIAN_FRONTEND=noninteractive
+apt update 2> /dev/null > /dev/null
+apt upgrade -y 2> /dev/null > /dev/null
+export DEBIAN_FRONTEND=dialog
 
-echo -e "${YELLOW}Configuring Netplan${NC}"
+echo -e "${BLUE}    FS: ${YELLOW}Configuring Network File Server${NC}"
+
+echo -e "${BLUE}    FS: ${YELLOW}Configuring Network Settings${NC}"
+
+echo -e "${BLUE}    FS: ${YELLOW}Configuring Netplan${NC}"
 
 netplanPath="/etc/netplan/00-eth0.yaml"
 mv $netplanPath $netplanPath".old"
@@ -51,17 +59,15 @@ network:
 EOF
 netplan apply 2> /dev/null > /dev/null
 
-
-
-
-echo -e "${YELLOW}Configuring Hosts File${NC}"
+echo -e "${BLUE}    FS: ${YELLOW}Configuring Hosts File${NC}"
 
 hostsPath="/etc/hosts"
 cat /dev/null > $hostsPath
 cat > $hostsPath << EOF
-127.0.0.1       localhost.localdomain                 localhost
+127.0.0.1       localhost.localdomain    localhost
 127.0.0.1       vmLS2.biodesign$lowerGroupCode.lan    vmLS2
-192.168.110.61  vmLS2.biodesign$lowerGroupCode.lan    vmLS2
+192.168.110.62  vmLS2.biodesign$lowerGroupCode.lan    vmLS2
+192.168.110.62  vmLS2.biodesignXY.lan    vmLS2
 
 # The following lines are desirable for IPv6 capable hosts
 ::1     ip6-localhost ip6-loopback
@@ -71,7 +77,7 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 EOF
 
-echo -e "${YELLOW}Configuring Hostname${NC}"
+echo -e "${BLUE}    FS: ${YELLOW}Configuring Hostname${NC}"
 
 hostnamePath="/etc/hostname"
 cat /dev/null > $hostnamePath
@@ -79,31 +85,15 @@ cat > $hostnamePath << EOF
 vmLS2.biodesign$lowerGroupCode.lan
 EOF
 
-echo -e "${YELLOW}Configuring Search Domain in Resolved${NC}"
 
-resolvedPath="/etc/systemd/resolved.conf"
-mv $resolvedPath $resolvedPath".old"
-touch $resolvedPath
-chmod 644 $resolvedPath
-cat > $resolvedPath << EOF
-[Resolve]
-Domains=biodesign$lowerGroupCode.lan
-EOF
-
-systemctl restart systemd-resolved
-
-echo -e "${GREEN}Network Settings configured successfully${NC}"
-echo -e "${YELLOW}Installing Packages${NC}"
+echo -e "${BLUE}    FS: ${YELLOW}Installing Packages (This might take a few Minutes)${NC}"
 
 export DEBIAN_FRONTEND=noninteractive
-apt update 2> /dev/null > /dev/null
-apt upgrade -y 2> /dev/null > /dev/null
 apt install -y samba samba-common-bin smbclient heimdal-clients libpam-heimdal 2> /dev/null > /dev/null
 apt install -y libnss-winbind libpam-winbind 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
-echo -e "${GREEN}Packages installed successfully${NC}"
-echo -e "${YELLOW}Configuring Samba${NC}"
+echo -e "${BLUE}    FS: ${YELLOW}Configuring Smaba${NC}"
 
 sambaPath="/etc/samba/smb.conf"
 mv $sambaPath $sambaPath".old"
@@ -127,6 +117,3 @@ cat > $sambaPath << EOF
 	client ipc signing = auto
 	vfs objects = acl_xattr
 EOF
-smbcontrol all reload-config
-
-echo -e "${GREEN}Samba configured successfully${NC}"
