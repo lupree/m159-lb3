@@ -80,8 +80,6 @@ export DEBIAN_FRONTEND=noninteractive
 apt install -y git sshpass 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
-echo -e "${BLUE}LP1: ${YELLOW}Cloning Repository${NC}"
-
 git clone https://Beutlus:$githubPAT@github.com/lupree/m159-lb3.git /tmp/m159 2>/dev/null >/dev/null
 
 echo -e "${BLUE}LP1: ${YELLOW}Running Main Script${NC}"
