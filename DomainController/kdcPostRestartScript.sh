@@ -53,3 +53,11 @@ samba-tool dns add vmLS1.biodesign$lowerGroupCode.lan 110.168.192.in-addr.arpa 6
 samba-tool dns add vmLS1.biodesign$lowerGroupCode.lan 110.168.192.in-addr.arpa 10 PTR vmWP1.biodesign$lowerGroupCode -U administrator --password="SmL12345**" 2> /dev/null > /dev/null
 
 samba_dnsupdate
+
+echo -e "${BLUE}    KDC: ${YELLOW}Configuring Password Policies"
+
+samba-tool domain passwordsettings set --complexity=off -U administrator --password="SmL12345**" 2> /dev/null > /dev/null
+samba-tool domain passwordsettings set --history-length=0 -U administrator --password="SmL12345**" 2> /dev/null > /dev/null
+samba-tool domain passwordsettings set --min-pwd-age=0 -U administrator --password="SmL12345**" 2> /dev/null > /dev/null
+samba-tool domain passwordsettings set --max-pwd-age=0 -U administrator --password="SmL12345**" 2> /dev/null > /dev/null
+samba-tool user setexpiry Administrator --noexpiry -U administrator --password="SmL12345**" 2> /dev/null > /dev/null

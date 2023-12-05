@@ -113,3 +113,20 @@ cat > $sambaPath << EOF
 	client ipc signing = auto
 	vfs objects = acl_xattr
 EOF
+
+echo -e "${BLUE}    FS: ${YELLOW}Configuring Kerberos${NC}"
+
+kerberosPath="/etc/krb5.conf"
+rm -f $kerberosPath
+touch $kerberosPath
+chmod 644 $kerberosPath
+cat > $kerberosPath << EOF
+[libdefaults]
+	default_realm = BIODESIGN$upperGroupCode.LAN
+	fcc-mit-ticketflags = true
+[realms]
+	SAM159.IET-GIBB.CH = {
+		kdc = vmLS1.sam159.iet-gibb.ch
+		admin_server = vmLS1.sam159.iet-gibb.ch
+	}
+EOF

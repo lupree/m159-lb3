@@ -29,7 +29,6 @@ net ads join -U Administrator << EOF
 SmL12345**
 EOF
 
-echo -e "${BLUE}    FS: ${GREEN}Real joined successfully${NC}"
 echo -e "${BLUE}    FS: ${YELLOW}Configuring Winbind${NC}"
 
 
@@ -54,7 +53,6 @@ rpc:            db files
 netgroup:       nis
 EOF
 
-echo -e "${BLUE}    FS: ${GREEN}Winbind configured successfully${NC}"
 echo -e "${BLUE}    FS: ${YELLOW}Configuring Samba Registry Management${NC}"
 
 sambapath="/etc/samba/smb.conf"
@@ -68,6 +66,3 @@ cat > $sambaPath << EOF
 [global]
 	config backend = registry
 EOF
-
-echo -e "${BLUE}    FS: ${GREEN}Samba Registry Management configured successfully${NC}"
-echo -e "${BLUE}    FS: ${YELLOW}${NC}"
