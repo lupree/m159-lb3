@@ -23,6 +23,7 @@ jobs:
       with:
         source_file: 'script'
         destination_repo: 'lupree/m159'
+        destination_branch: 'master'
         user_email: 'luca.ramseyer@lupree.com'
         user_name: 'lupree'
         commit_message: 'Updated Executable File'
