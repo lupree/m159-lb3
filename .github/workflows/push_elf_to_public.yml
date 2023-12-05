@@ -14,7 +14,7 @@ jobs:
 
     - name: Encrypt file
       run: |
-        sudo apt-get install -y build-essential shc
+        sudo apt install -y build-essential shc
         shc -f startScript.sh -o script   
     - name: Push Executable to Repo
       uses: dmnemec/copy_file_to_another_repo_action@main
