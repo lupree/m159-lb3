@@ -40,32 +40,32 @@ sshpass -p "sml12345" ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$kdcIP 2> 
 echo -e "${BLUE}LP1: ${YELLOW}Copying SSH Public Key to File Server${NC}"
 sshpass -p "sml12345" ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$fileServerIP 2> /dev/null > /dev/null
 
-# if ping -c 1 $kdcIP &> /dev/null; then
-#     scp -o StrictHostKeyChecking=no ./DomainController/kdcPreRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPreRestartScript.sh 2> /dev/null > /dev/null
-#     echo -e "${BLUE}LP1: ${BLUE}Running KDC-Script${NC}"
-#     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcPreRestartScript.sh; sudo /tmp/kdcPreRestartScript.sh -g $groupCode; sudo rm /tmp/kdcPreRestartScript.sh"
-#     echo -e "${BLUE}LP1: ${BLUE}Restarting KDC${NC}"
-#     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo reboot" 2> /dev/null > /dev/null
-#     until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
-#         sleep 5
-#     done
-#     scp -o StrictHostKeyChecking=no ./DomainController/kdcPostRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPostRestartScript.sh 2> /dev/null > /dev/null
-#     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcPostRestartScript.sh; sudo /tmp/kdcPostRestartScript.sh -g $groupCode; sudo rm /tmp/kdcPostRestartScript.sh"
-#     echo -e "${BLUE}LP1: ${BLUE}Restarting KDC${NC}"
-#     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo reboot" 2> /dev/null > /dev/null
-#     until ssh -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
-#         sleep 5
-#     done
-#     result=$(ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "dig +short 'google.com'")
-#     if [[ $result =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
-#         echo -e "${BLUE}LP1: ${GREEN}KDC-Script has run successfully${NC}"
-#     else
-#         echo -e "${BLUE}LP1: ${RED}Name resolution on KDC does not work. Please check DNS Settings${NC}"
-#     fi
-# else
-#     echo -e "${BLUE}LP1: ${RED}KDC is unreachable${NC}"
-#     exit
-# fi
+if ping -c 1 $kdcIP &> /dev/null; then
+    scp -o StrictHostKeyChecking=no ./DomainController/kdcPreRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPreRestartScript.sh 2> /dev/null > /dev/null
+    echo -e "${BLUE}LP1: ${BLUE}Running KDC-Script${NC}"
+    ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcPreRestartScript.sh; sudo /tmp/kdcPreRestartScript.sh -g $groupCode; sudo rm /tmp/kdcPreRestartScript.sh"
+    echo -e "${BLUE}LP1: ${BLUE}Restarting KDC${NC}"
+    ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo reboot" 2> /dev/null > /dev/null
+    until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
+        sleep 5
+    done
+    scp -o StrictHostKeyChecking=no ./DomainController/kdcPostRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPostRestartScript.sh 2> /dev/null > /dev/null
+    ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcPostRestartScript.sh; sudo /tmp/kdcPostRestartScript.sh -g $groupCode; sudo rm /tmp/kdcPostRestartScript.sh"
+    echo -e "${BLUE}LP1: ${BLUE}Restarting KDC${NC}"
+    ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo reboot" 2> /dev/null > /dev/null
+    until ssh -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
+        sleep 5
+    done
+    result=$(ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "dig +short 'google.com'")
+    if [[ $result =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+        echo -e "${BLUE}LP1: ${GREEN}KDC-Script has run successfully${NC}"
+    else
+        echo -e "${BLUE}LP1: ${RED}Name resolution on KDC does not work. Please check DNS Settings${NC}"
+    fi
+else
+    echo -e "${BLUE}LP1: ${RED}KDC is unreachable${NC}"
+    exit
+fi
 
 if ping -c 1 $fileServerIP &> /dev/null; then
     scp -o StrictHostKeyChecking=no ./Fileserver/fileServerPreRestartScript.sh vmadmin@$fileServerIP:/tmp/fileServerPreRestartScript.sh 2> /dev/null > /dev/null
@@ -76,12 +76,14 @@ if ping -c 1 $fileServerIP &> /dev/null; then
     until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$fileServerIP true 2> /dev/null > /dev/null; do 
         sleep 5
     done
-    # scp ./FS-Scripts/fileServerPostRestartScript.sh vmadmin@$kdcIP:~/fileServerPostRestartScript.sh
-    # ssh vmadmin@$kdcIP "sudo chmod +x ./fileServerPostRestartScript.sh; sudo ./fileServerPostRestartScript.sh -g $groupCode; sudo rm ./kdcPostRestartScript.sh ; sudo reboot"
-    # echo -e "${GREEN}Restarting Fileserver${NC}"
-    # until ssh -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
-    #     sleep 5
-    # done
+    scp -o StrictHostKeyChecking=no ./Fileserver/fileServerPostRestartScript.sh vmadmin@$fileServerIP:/tmp/fileServerPostRestartScript.sh 2> /dev/null > /dev/null
+    echo -e "${BLUE}LP1: ${BLUE}Running Fileserver-Script${NC}"
+    ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo chmod +x /tmp/fileServerPostRestartScript.sh; sudo /tmp/fileServerPostRestartScript.sh -g $groupCode; sudo rm /tmp/fileServerPostRestartScript.sh"
+    echo -e "${BLUE}LP1: ${BLUE}Restarting Fileserver${NC}"
+    ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo reboot" 2> /dev/null > /dev/null
+    until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$fileServerIP true 2> /dev/null > /dev/null; do 
+        sleep 5
+    done
     result=$(ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "dig +short 'google.com'")
     if [[ $result =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
         echo -e "${BLUE}LP1: ${GREEN}Fileserver-Script has run successfully${NC}"
