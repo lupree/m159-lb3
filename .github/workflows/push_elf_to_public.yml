@@ -3,7 +3,7 @@ name: Push Executable to Public Repo
 on:
   push:
     paths:
-      - 'startScript.sh'
+      - 'script'
   workflow_dispatch:
 jobs:
   copy-file:
