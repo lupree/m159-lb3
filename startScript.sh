@@ -14,6 +14,7 @@ currentIP=hostname -I
 kdcIP='192.168.110.61'
 fileServerIP='192.168.110.62'
 groupCode=''
+githubPAT=''
 
 cleanup()
 {

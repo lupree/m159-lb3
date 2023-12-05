@@ -1,7 +1,6 @@
 #!/bin/bash
 
 cd /tmp/m159
-cd /tmp/m159
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
