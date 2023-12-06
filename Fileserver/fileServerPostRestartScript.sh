@@ -59,7 +59,7 @@ net conf import $sambaPath
 rm -f $sambaPath".old"
 mv $sambaPath $sambaPath".old"
 touch $sambaPath
-chmod 644 $sambapath
+chmod 644 $sambaPath
 cat > $sambaPath << EOF
 [global]
 	config backend = registry
