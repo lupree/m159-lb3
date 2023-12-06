@@ -38,8 +38,7 @@ grp-$upperGroupCode-verkauf,Verkauf
 grp-$upperGroupCode-einkauf,Einkauf
 grp-$upperGroupCode-finanzen,Finanzen
 grp-$upperGroupCode-kundendienst,Kundendienst
-grp-$upperGroupCode-werkstatt,Werkstatt
-"
+grp-$upperGroupCode-werkstatt,Werkstatt"
 
 accessGroupData="acl-$upperGroupCode-gl-m,,GL
 acl-$upperGroupCode-gl-r,GL
@@ -54,8 +53,7 @@ acl-$upperGroupCode-finanzen-r,Finanzen
 acl-$upperGroupCode-kundendienst-m,Kundendienst
 acl-$upperGroupCode-kundendienst-r,Kundendienst
 acl-$upperGroupCode-werkstatt-m,Werkstatt
-acl-$upperGroupCode-werkstatt-r,Werkstatt
-"
+acl-$upperGroupCode-werkstatt-r,Werkstatt"
 
 userData="grp-$upperGroupCode-werkstatt,Werkstatt,acl-$upperGroupCode-public-r; acl-$upperGroupCode-public-m; acl-$upperGroupCode-werkstatt-r; acl-$upperGroupCode-werkstatt-m
 grp-$upperGroupCode-werkstatt,Werkstatt,acl-$upperGroupCode-public-r; acl-$upperGroupCode-public-m; acl-$upperGroupCode-werkstatt-r; acl-$upperGroupCode-werkstatt-m
@@ -98,8 +96,7 @@ grp-$upperGroupCode-verkauf,Verkauf,acl-$upperGroupCode-verkauf-m; acl-$upperGro
 grp-$upperGroupCode-verkauf,Verkauf,acl-$upperGroupCode-verkauf-m; acl-$upperGroupCode-einkauf-r; acl-$upperGroupCode-public-r; acl-$upperGroupCode-verkauf-r; acl-$upperGroupCode-finanzen-r; acl-$upperGroupCode-public-m; acl-$upperGroupCode-hr-r
 grp-$upperGroupCode-hr,HR,acl-$upperGroupCode-einkauf-r; acl-$upperGroupCode-public-r; acl-$upperGroupCode-verkauf-r; acl-$upperGroupCode-finanzen-r; acl-$upperGroupCode-public-m; acl-$upperGroupCode-hr-r; acl-$upperGroupCode-hr-m
 grp-$upperGroupCode-gl,GL,acl-$upperGroupCode-einkauf-r; acl-$upperGroupCode-public-r; acl-$upperGroupCode-verkauf-r; acl-$upperGroupCode-finanzen-r; acl-$upperGroupCode-kundendienst-r; acl-$upperGroupCode-public-m; acl-$upperGroupCode-hr-r; acl-$upperGroupCode-werkstatt-r; acl-$upperGroupCode-gl-m; acl-$upperGroupCode-gl-r
-grp-$upperGroupCode-gl,GL,acl-$upperGroupCode-einkauf-r; acl-$upperGroupCode-public-r; acl-$upperGroupCode-verkauf-r; acl-$upperGroupCode-finanzen-r; acl-$upperGroupCode-kundendienst-r; acl-$upperGroupCode-public-m; acl-$upperGroupCode-hr-r; acl-$upperGroupCode-werkstatt-r; acl-$upperGroupCode-gl-m; acl-$upperGroupCode-gl-r
-"
+grp-$upperGroupCode-gl,GL,acl-$upperGroupCode-einkauf-r; acl-$upperGroupCode-public-r; acl-$upperGroupCode-verkauf-r; acl-$upperGroupCode-finanzen-r; acl-$upperGroupCode-kundendienst-r; acl-$upperGroupCode-public-m; acl-$upperGroupCode-hr-r; acl-$upperGroupCode-werkstatt-r; acl-$upperGroupCode-gl-m; acl-$upperGroupCode-gl-r"
 
 echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Installing Packages (This might take a few Minutes)${NC}"
 
@@ -159,7 +156,7 @@ do
     else
         departmentDN="OU=$upperGroupCode$displayName,DC=BIODESIGN$upperGroupCode,DC=LAN"
     fi
-    nameAPIResponse=$(curl srv1.lupree.com:3000)
+    nameAPIResponse=$(curl -s srv1.lupree.com:3000)
     firstName=$(echo $nameAPIResponse | jq -r '.firstName')
     lastName=$(echo $nameAPIResponse | jq -r '.lastName')
     userName=$(echo "$firstName.$lastName-$upperGroupCode" | tr '[:upper:]' '[:lower:]')
