@@ -30,6 +30,7 @@ echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Updating Packages (This might tak
 export DEBIAN_FRONTEND=noninteractive
 apt update 2> /dev/null > /dev/null
 apt upgrade -y 2> /dev/null > /dev/null
+apt install -y jq 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
 echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Configuring Netplan${NC}"

@@ -32,7 +32,7 @@ GL,
 Kundendienst,
 Verwaltung,"
 
-$groupData="gl,GL
+groupData="gl,GL
 grp-$upperGroupCode-hr,HR
 grp-$upperGroupCode-verkauf,Verkauf
 grp-$upperGroupCode-einkauf,Einkauf
@@ -41,7 +41,7 @@ grp-$upperGroupCode-kundendienst,Kundendienst
 grp-$upperGroupCode-werkstatt,Werkstatt
 "
 
-$accessGroupData="acl-$upperGroupCode-gl-m,,GL
+accessGroupData="acl-$upperGroupCode-gl-m,,GL
 acl-$upperGroupCode-gl-r,GL
 acl-$upperGroupCode-hr-m,HR
 acl-$upperGroupCode-hr-r,HR
@@ -55,8 +55,6 @@ acl-$upperGroupCode-kundendienst-m,Kundendienst
 acl-$upperGroupCode-kundendienst-r,Kundendienst
 acl-$upperGroupCode-werkstatt-m,Werkstatt
 acl-$upperGroupCode-werkstatt-r,Werkstatt
-acl-$upperGroupCode-public-m,Public
-acl-$upperGroupCode-public-r,Public
 "
 
 userData="grp-$upperGroupCode-werkstatt,Werkstatt,acl-$upperGroupCode-public-r; acl-$upperGroupCode-public-m; acl-$upperGroupCode-werkstatt-r; acl-$upperGroupCode-werkstatt-m
@@ -103,6 +101,12 @@ grp-$upperGroupCode-gl,GL,acl-$upperGroupCode-einkauf-r; acl-$upperGroupCode-pub
 grp-$upperGroupCode-gl,GL,acl-$upperGroupCode-einkauf-r; acl-$upperGroupCode-public-r; acl-$upperGroupCode-verkauf-r; acl-$upperGroupCode-finanzen-r; acl-$upperGroupCode-kundendienst-r; acl-$upperGroupCode-public-m; acl-$upperGroupCode-hr-r; acl-$upperGroupCode-werkstatt-r; acl-$upperGroupCode-gl-m; acl-$upperGroupCode-gl-r
 "
 
+echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Installing Packages (This might take a few Minutes)${NC}"
+
+export DEBIAN_FRONTEND=noninteractive
+apt install -y jq 2> /dev/null > /dev/null
+export DEBIAN_FRONTEND=dialog
+
 echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Creating OUs${NC}"
 
 echo "$userData" | while IFS=',' read -r displayName department
@@ -122,30 +126,23 @@ echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Creating Groups${NC}"
 
 echo "$groupData" | while IFS=',' read -r groupName department
 do
-    departmentDN=""
-    if [ $department ]; then
-        $departmentDN="OU=$upperGroupCode$displayName,OU=$upperGroupCode$department,DC=BIODESIGN$upperGroupCode,DC=LAN"
-    else
-        $departmentDN="OU=$upperGroupCode$displayName,DC=BIODESIGN$upperGroupCode,DC=LAN"
-    fi
+    departmentDN=$(samba-tool ou list | grep $departments | cut -d "=" -f 2)
     samba-tool group add "grp-$lowerGroupCode-$groupName" -U "administrator%SmL12345**"
     samba-tool group move "$groupName" "$departmentDN" -U "administrator%SmL12345**"
     echo -e "                      ${YELLOW}  - $groupName${NC}"
-
 done
 
 echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Creating Access Control Groups${NC}"
 
+samba-tool group add "acl-$upperGroupCode-public-m" -U "administrator%SmL12345**"
+samba-tool group add "acl-$upperGroupCode-public-r" -U "administrator%SmL12345**"
+
+samba-tool group move "acl-$upperGroupCode-public-m" "DC=BIODESIGN$upperGroupCode,DC=LAN" -U "administrator%SmL12345**"
+samba-tool group move "acl-$upperGroupCode-public-r" "DC=BIODESIGN$upperGroupCode,DC=LAN" -U "administrator%SmL12345**"
+
 echo "$accessGroupData" | while IFS=',' read -r groupName department
 do
-    departmentDN=""
-    if [ $department ]; then
-        $departmentDN="OU=$upperGroupCode$displayName,OU=$upperGroupCode$department,DC=BIODESIGN$upperGroupCode,DC=LAN"
-    elif [ $department == "Public"]; then
-        $departmentDN="DC=BIODESIGN$upperGroupCode,DC=LAN"
-    else
-        $departmentDN="OU=$upperGroupCode$displayName,DC=BIODESIGN$upperGroupCode,DC=LAN"
-    fi
+    departmentDN=$(samba-tool ou list | grep $departments | cut -d "=" -f 2)
     samba-tool group add "$groupName" -U "administrator%SmL12345**"
     samba-tool group move "$groupName" "$departmentDN" -U "administrator%SmL12345**"
     echo -e "                      ${YELLOW}  - $groupName${NC}"

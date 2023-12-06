@@ -15,7 +15,7 @@ while getopts ":g:" option; do
             if [ ${#OPTARG} -eq 2 ] && [ -n "$OPTARG" ]; then
                 groupCode=$OPTARG
             else
-                echo -e "${BLUE}    FS | $currentIP: ${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
+                echo -e "${BLUE}    FS  | $currentIP: ${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
                 exit
             fi;;
     esac
@@ -24,11 +24,11 @@ done
 lowerGroupCode=$(echo $groupCode | tr '[:upper:]' '[:lower:]')
 upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
-echo -e "${BLUE}    FS | $currentIP: ${YELLOW}Joining Realm${NC}"
+echo -e "${BLUE}    FS  | $currentIP: ${YELLOW}Joining Realm${NC}"
 
-net ads join -U "Administrator%SmL12345**"
+net ads join -U "Administrator%SmL12345**" 2> /dev/null > /dev/null
 
-echo -e "${BLUE}    FS | $currentIP: ${YELLOW}Configuring Winbind${NC}"
+echo -e "${BLUE}    FS  | $currentIP: ${YELLOW}Configuring Winbind${NC}"
 
 winbindPath="/etc/nsswitch.conf"
 mv $winbindPath $winbindPath".old"
@@ -51,7 +51,7 @@ rpc:            db files
 netgroup:       nis
 EOF
 
-echo -e "${BLUE}    FS | $currentIP: ${YELLOW}Configuring Samba Registry Management${NC}"
+echo -e "${BLUE}    FS  | $currentIP: ${YELLOW}Configuring Samba Registry Management${NC}"
 
 sambaPath="/etc/samba/smb.conf"
 

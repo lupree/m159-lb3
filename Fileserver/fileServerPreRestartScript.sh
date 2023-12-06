@@ -15,7 +15,7 @@ while getopts ":g:" option; do
             if [ ${#OPTARG} -eq 2 ] && [ -n "$OPTARG" ]; then
                 groupCode=$OPTARG
             else
-                echo -e "${BLUE}    FS | $currentIP: ${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
+                echo -e "${BLUE}    FS  | $currentIP: ${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
                 exit
             fi;;
     esac
@@ -24,14 +24,14 @@ done
 lowerGroupCode=$(echo $groupCode | tr '[:upper:]' '[:lower:]')
 upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
-echo -e "${BLUE}    FS | $currentIP: ${YELLOW}Updating Packages (This might take a few Minutes)${NC}"
+echo -e "${BLUE}    FS  | $currentIP: ${YELLOW}Updating Packages (This might take a few Minutes)${NC}"
 
 export DEBIAN_FRONTEND=noninteractive
 apt update 2> /dev/null > /dev/null
 apt upgrade -y 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
-echo -e "${BLUE}    FS | $currentIP: ${YELLOW}Configuring Netplan${NC}"
+echo -e "${BLUE}    FS  | $currentIP: ${YELLOW}Configuring Netplan${NC}"
 
 netplanPath="/etc/netplan/00-eth0.yaml"
 mv $netplanPath $netplanPath".old"
@@ -56,7 +56,7 @@ network:
 EOF
 netplan apply 2> /dev/null > /dev/null
 
-echo -e "${BLUE}    FS | $currentIP: ${YELLOW}Configuring Hosts File${NC}"
+echo -e "${BLUE}    FS  | $currentIP: ${YELLOW}Configuring Hosts File${NC}"
 
 hostsPath="/etc/hosts"
 cat /dev/null > $hostsPath
@@ -74,7 +74,7 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 EOF
 
-echo -e "${BLUE}    FS | $currentIP: ${YELLOW}Configuring Hostname${NC}"
+echo -e "${BLUE}    FS  | $currentIP: ${YELLOW}Configuring Hostname${NC}"
 
 hostnamePath="/etc/hostname"
 cat /dev/null > $hostnamePath
@@ -83,14 +83,14 @@ vmLS2.biodesign$lowerGroupCode.lan
 EOF
 
 
-echo -e "${BLUE}    FS | $currentIP: ${YELLOW}Installing Packages (This might take a few Minutes)${NC}"
+echo -e "${BLUE}    FS  | $currentIP: ${YELLOW}Installing Packages (This might take a few Minutes)${NC}"
 
 export DEBIAN_FRONTEND=noninteractive
 apt install -y samba samba-common-bin smbclient heimdal-clients libpam-heimdal 2> /dev/null > /dev/null
 apt install -y libnss-winbind libpam-winbind 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
-echo -e "${BLUE}    FS | $currentIP: ${YELLOW}Configuring Samba${NC}"
+echo -e "${BLUE}    FS  | $currentIP: ${YELLOW}Configuring Samba${NC}"
 
 sambaPath="/etc/samba/smb.conf"
 mv $sambaPath $sambaPath".old"
@@ -115,7 +115,7 @@ cat > $sambaPath << EOF
 	vfs objects = acl_xattr
 EOF
 
-echo -e "${BLUE}    FS | $currentIP: ${YELLOW}Configuring Kerberos${NC}"
+echo -e "${BLUE}    FS  | $currentIP: ${YELLOW}Configuring Kerberos${NC}"
 
 kerberosPath="/etc/krb5.conf"
 rm -f $kerberosPath
