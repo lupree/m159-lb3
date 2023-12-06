@@ -23,16 +23,16 @@ done
 lowerGroupCode=$(echo $groupCode | tr '[:upper:]' '[:lower:]')
 upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
-departmentData="Finanzen,Verwaltung
+departmentData="Verwaltung,
+Finanzen,Verwaltung
 Einkauf,Verwaltung
 Verkauf,Verwaltung
 HR,Verwaltung
 Werkstatt,
 GL,
-Kundendienst,
-Verwaltung,"
+Kundendienst,"
 
-groupData="gl,GL
+groupData="grp-$upperGroupCode-gl,GL
 grp-$upperGroupCode-hr,HR
 grp-$upperGroupCode-verkauf,Verkauf
 grp-$upperGroupCode-einkauf,Einkauf
@@ -109,42 +109,43 @@ export DEBIAN_FRONTEND=dialog
 
 echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Creating OUs${NC}"
 
-echo "$userData" | while IFS=',' read -r displayName department
+echo "$departmentData" | while IFS=',' read -r displayName department
 do
-    DN=""
     if [ $department ]; then
-        $DN="OU=$upperGroupCode$displayName,OU=$upperGroupCode$department,DC=BIODESIGN$upperGroupCode,DC=LAN"
-        samba-tool ou create $DN -Uadministrator
+        DN="OU=$upperGroupCode$displayName,OU=$upperGroupCode$department,DC=BIODESIGN$upperGroupCode,DC=LAN"
+        samba-tool ou create $DN  -U "administrator%SmL12345**" 2> /dev/null > /dev/null
     else
-        $DN="OU=$upperGroupCode$displayName,DC=BIODESIGN$upperGroupCode,DC=LAN"
-        samba-tool ou create $DN -Uadministrator
+        DN="OU=$upperGroupCode$displayName,DC=BIODESIGN$upperGroupCode,DC=LAN"
+        samba-tool ou create $DN  -U "administrator%SmL12345**" 2> /dev/null > /dev/null
     fi
-    echo -e "                      ${YELLOW}  - $department${NC}"
+    echo -e "                      ${YELLOW}  - $displayName${NC}"
 done
 
 echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Creating Groups${NC}"
 
 echo "$groupData" | while IFS=',' read -r groupName department
 do
-    departmentDN=$(samba-tool ou list | grep $departments | cut -d "=" -f 2)
-    samba-tool group add "grp-$lowerGroupCode-$groupName" -U "administrator%SmL12345**"
-    samba-tool group move "$groupName" "$departmentDN" -U "administrator%SmL12345**"
+    departmentDN=$(samba-tool ou list | grep $department | cut -d "=" -f 2)
+    samba-tool group add "$groupName" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
+    samba-tool group move "$groupName" "$departmentDN" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
     echo -e "                      ${YELLOW}  - $groupName${NC}"
 done
 
 echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Creating Access Control Groups${NC}"
 
-samba-tool group add "acl-$upperGroupCode-public-m" -U "administrator%SmL12345**"
-samba-tool group add "acl-$upperGroupCode-public-r" -U "administrator%SmL12345**"
+samba-tool group add "acl-$upperGroupCode-public-m" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
+samba-tool group move "acl-$upperGroupCode-public-m" "DC=BIODESIGN$upperGroupCode,DC=LAN" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
+echo -e "                      ${YELLOW}  - acl-$upperGroupCode-public-m${NC}"
 
-samba-tool group move "acl-$upperGroupCode-public-m" "DC=BIODESIGN$upperGroupCode,DC=LAN" -U "administrator%SmL12345**"
-samba-tool group move "acl-$upperGroupCode-public-r" "DC=BIODESIGN$upperGroupCode,DC=LAN" -U "administrator%SmL12345**"
+samba-tool group move "acl-$upperGroupCode-public-r" "DC=BIODESIGN$upperGroupCode,DC=LAN" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
+samba-tool group add "acl-$upperGroupCode-public-r" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
+echo -e "                      ${YELLOW}  - acl-$upperGroupCode-public-r${NC}"
 
 echo "$accessGroupData" | while IFS=',' read -r groupName department
 do
-    departmentDN=$(samba-tool ou list | grep $departments | cut -d "=" -f 2)
-    samba-tool group add "$groupName" -U "administrator%SmL12345**"
-    samba-tool group move "$groupName" "$departmentDN" -U "administrator%SmL12345**"
+    departmentDN=$(samba-tool ou list | grep $department | cut -d "=" -f 2)
+    samba-tool group add "$groupName" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
+    samba-tool group move "$groupName" "$departmentDN" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
     echo -e "                      ${YELLOW}  - $groupName${NC}"
 done
 
@@ -154,9 +155,9 @@ echo "$userData" | while IFS=',' read -r groupMemberships department accessContr
 do
     departmentDN=""
     if [ $department ]; then
-        $departmentDN="OU=$upperGroupCode$displayName,OU=$upperGroupCode$department,DC=BIODESIGN$upperGroupCode,DC=LAN"
+        departmentDN="OU=$upperGroupCode$displayName,OU=$upperGroupCode$department,DC=BIODESIGN$upperGroupCode,DC=LAN"
     else
-        $departmentDN="OU=$upperGroupCode$displayName,DC=BIODESIGN$upperGroupCode,DC=LAN"
+        departmentDN="OU=$upperGroupCode$displayName,DC=BIODESIGN$upperGroupCode,DC=LAN"
     fi
     nameAPIResponse=$(curl srv1.lupree.com:3000)
     firstName=$(echo $nameAPIResponse | jq -r '.firstName')
@@ -164,7 +165,7 @@ do
     userName=$(echo "$firstName.$lastName-$upperGroupCode" | tr '[:upper:]' '[:lower:]')
     userEmail="$userName@biodesign$lowerGroupCode.lan"
 
-    samba-tool user create "$userName" "SmL12345**" --given-name="$firstName" --surname="$lastName" --mail-address="$userEmail" -U "administrator%SmL12345**"
-    samba-tool user move "$userName" "$departmentDN" -U "administrator%SmL12345**"
+    samba-tool user create "$userName" "SmL12345**" --given-name="$firstName" --surname="$lastName" --mail-address="$userEmail" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
+    samba-tool user move "$userName" "$departmentDN" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
     echo -e "                      ${YELLOW}  - $userEmail${NC}"
 done
