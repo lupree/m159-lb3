@@ -50,7 +50,7 @@ done
 export DEBIAN_FRONTEND=noninteractive
 apt update 2> /dev/null > /dev/null
 apt upgrade -y 2> /dev/null > /dev/null
-apt install -y shc build-essential git
+apt install -y shc build-essential git 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
 git clone https://lupree:$githubPAT@github.com/lupree/m159-lb3.git /tmp/m159-origin 2>/dev/null >/dev/null

@@ -7,6 +7,7 @@ BLUE='\e[0;34m'
 NC='\033[0m'
 
 groupCode=''
+currentIP=$(hostname -I)
 
 while getopts ":g:" option; do
     case $option in
@@ -14,7 +15,7 @@ while getopts ":g:" option; do
             if [ ${#OPTARG} -eq 2 ] && [ -n "$OPTARG" ]; then
                 groupCode=$OPTARG
             else
-                echo -e "${BLUE}    FS: ${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
+                echo -e "${BLUE}    FS | $currentIP: ${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
                 exit
             fi;;
     esac
@@ -23,11 +24,11 @@ done
 lowerGroupCode=$(echo $groupCode | tr '[:upper:]' '[:lower:]')
 upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
-echo -e "${BLUE}    FS: ${YELLOW}Joining Realm${NC}"
+echo -e "${BLUE}    FS | $currentIP: ${YELLOW}Joining Realm${NC}"
 
 net ads join -U "Administrator%SmL12345**"
 
-echo -e "${BLUE}    FS: ${YELLOW}Configuring Winbind${NC}"
+echo -e "${BLUE}    FS | $currentIP: ${YELLOW}Configuring Winbind${NC}"
 
 winbindPath="/etc/nsswitch.conf"
 mv $winbindPath $winbindPath".old"
@@ -50,12 +51,12 @@ rpc:            db files
 netgroup:       nis
 EOF
 
-echo -e "${BLUE}    FS: ${YELLOW}Configuring Samba Registry Management${NC}"
+echo -e "${BLUE}    FS | $currentIP: ${YELLOW}Configuring Samba Registry Management${NC}"
 
-sambapath="/etc/samba/smb.conf"
+sambaPath="/etc/samba/smb.conf"
 
 net conf import $sambaPath
-rm $sambaPath".old"
+rm -f $sambaPath".old"
 mv $sambaPath $sambaPath".old"
 touch $sambaPath
 chmod 644 $sambapath

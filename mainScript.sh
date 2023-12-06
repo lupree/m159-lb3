@@ -11,6 +11,7 @@ NC='\033[0m'
 kdcIP='192.168.110.61'
 fileServerIP='192.168.110.62'
 groupCode=''
+currentIP=$(hostname -I)
 
 while getopts ":g:" option; do
     case $option in
@@ -18,7 +19,7 @@ while getopts ":g:" option; do
             if [ ${#OPTARG} -eq 2 ] && [ -n "$OPTARG" ]; then
                 groupCode=$OPTARG
             else
-                echo -e "${BLUE}LP1: ${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
+                echo -e "${BLUE}LP1 | $currentIP: ${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
                 exit
             fi;;
     esac
@@ -26,68 +27,68 @@ done
 
 rm -f /home/vmadmin/.ssh/known_hosts
 
-echo -e "${BLUE}LP1: ${YELLOW}Generating new SSH Keypair${NC}"
+echo -e "${BLUE}LP1 | $currentIP: ${YELLOW}Generating new SSH Keypair${NC}"
 
 rm -f "$HOME/.ssh/id_rsa"
 rm -f "$HOME/.ssh/id_rsa.pub"
 
 ssh-keygen -t rsa -b 2048 -f "$HOME/.ssh/id_rsa" -N "" 2> /dev/null > /dev/null
 
-echo -e "${BLUE}LP1: ${YELLOW}Copying SSH Public Key to KDC${NC}"
+echo -e "${BLUE}LP1 | $currentIP: ${YELLOW}Copying SSH Public Key to KDC${NC}"
 sshpass -p "sml12345" ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$kdcIP 2> /dev/null > /dev/null
 
-echo -e "${BLUE}LP1: ${YELLOW}Copying SSH Public Key to File Server${NC}"
+echo -e "${BLUE}LP1 | $currentIP: ${YELLOW}Copying SSH Public Key to File Server${NC}"
 sshpass -p "sml12345" ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$fileServerIP 2> /dev/null > /dev/null
 
 if ping -c 1 $kdcIP &> /dev/null; then
     scp -o StrictHostKeyChecking=no ./DomainController/kdcPreRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPreRestartScript.sh 2> /dev/null > /dev/null
-    echo -e "${BLUE}LP1: ${BLUE}Running KDC-Script${NC}"
+    echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Running KDC-Script${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcPreRestartScript.sh; sudo /tmp/kdcPreRestartScript.sh -g $groupCode; sudo rm /tmp/kdcPreRestartScript.sh"
-    echo -e "${BLUE}LP1: ${BLUE}Restarting KDC${NC}"
+    echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Restarting KDC${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo reboot" 2> /dev/null > /dev/null
     until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
         sleep 5
     done
     scp -o StrictHostKeyChecking=no ./DomainController/kdcPostRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPostRestartScript.sh 2> /dev/null > /dev/null
     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcPostRestartScript.sh; sudo /tmp/kdcPostRestartScript.sh -g $groupCode; sudo rm /tmp/kdcPostRestartScript.sh"
-    echo -e "${BLUE}LP1: ${BLUE}Restarting KDC${NC}"
+    echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Restarting KDC${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo reboot" 2> /dev/null > /dev/null
     until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
         sleep 5
     done
     result=$(ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "dig +short 'google.com'")
     if [[ $result =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
-        echo -e "${BLUE}LP1: ${GREEN}KDC-Script has run successfully${NC}"
+        echo -e "${BLUE}LP1 | $currentIP: ${GREEN}KDC-Script has run successfully${NC}"
     else
-        echo -e "${BLUE}LP1: ${RED}Name resolution on KDC does not work. Please check DNS Settings${NC}"
+        echo -e "${BLUE}LP1 | $currentIP: ${RED}Name resolution on KDC does not work. Please check DNS Settings${NC}"
     fi
 else
-    echo -e "${BLUE}LP1: ${RED}KDC is unreachable${NC}"
+    echo -e "${BLUE}LP1 | $currentIP: ${RED}KDC is unreachable${NC}"
     exit
 fi
 
 if ping -c 1 $fileServerIP &> /dev/null; then
     scp -o StrictHostKeyChecking=no ./Fileserver/fileServerPreRestartScript.sh vmadmin@$fileServerIP:/tmp/fileServerPreRestartScript.sh 2> /dev/null > /dev/null
-    echo -e "${BLUE}LP1: ${BLUE}Running Fileserver-Script${NC}"
+    echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Running Fileserver-Script${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo chmod +x /tmp/fileServerPreRestartScript.sh; sudo /tmp/fileServerPreRestartScript.sh -g $groupCode; sudo rm /tmp/fileServerPreRestartScript.sh"
-    echo -e "${BLUE}LP1: ${BLUE}Restarting Fileserver${NC}"
+    echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Restarting Fileserver${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo reboot" 2> /dev/null > /dev/null
     until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$fileServerIP true 2> /dev/null > /dev/null; do 
         sleep 5
     done
     scp -o StrictHostKeyChecking=no ./Fileserver/fileServerPostRestartScript.sh vmadmin@$fileServerIP:/tmp/fileServerPostRestartScript.sh 2> /dev/null > /dev/null
-    echo -e "${BLUE}LP1: ${BLUE}Running Fileserver-Script${NC}"
+    echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Running Fileserver-Script${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo chmod +x /tmp/fileServerPostRestartScript.sh; sudo /tmp/fileServerPostRestartScript.sh -g $groupCode; sudo rm /tmp/fileServerPostRestartScript.sh"
-    echo -e "${BLUE}LP1: ${BLUE}Restarting Fileserver${NC}"
+    echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Restarting Fileserver${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo reboot" 2> /dev/null > /dev/null
     until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$fileServerIP true 2> /dev/null > /dev/null; do 
         sleep 5
     done
     result=$(ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "dig +short 'google.com'")
     if [[ $result =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
-        echo -e "${BLUE}LP1: ${GREEN}Fileserver-Script has run successfully${NC}"
+        echo -e "${BLUE}LP1 | $currentIP: ${GREEN}Fileserver-Script has run successfully${NC}"
     else
-        echo -e "${BLUE}LP1: ${RED}Name resolution on Fileserver does not work. Please check DNS Settings${NC}"
+        echo -e "${BLUE}LP1 | $currentIP: ${RED}Name resolution on Fileserver does not work. Please check DNS Settings${NC}"
     fi
 else
     echo -e "${RED}Fileserver is unreachable${NC}"

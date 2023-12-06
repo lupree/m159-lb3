@@ -7,6 +7,7 @@ BLUE='\e[0;34m'
 NC='\033[0m'
 
 groupCode=''
+currentIP=$(hostname -I)
 
 while getopts ":g:" option; do
     case $option in
@@ -14,7 +15,7 @@ while getopts ":g:" option; do
             if [ ${#OPTARG} -eq 2 ] && [ -n "$OPTARG" ]; then
                 groupCode=$OPTARG
             else
-                echo -e "${BLUE}    KDC: ${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
+                echo -e "${BLUE}    KDC | $currentIP: ${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
                 exit
             fi;;
     esac
@@ -24,14 +25,14 @@ lowerGroupCode=$(echo $groupCode | tr '[:upper:]' '[:lower:]')
 upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
 
-echo -e "${BLUE}    KDC: ${YELLOW}Updating Packages (This might take a few Minutes)${NC}"
+echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Updating Packages (This might take a few Minutes)${NC}"
 
 export DEBIAN_FRONTEND=noninteractive
 apt update 2> /dev/null > /dev/null
 apt upgrade -y 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
-echo -e "${BLUE}    KDC: ${YELLOW}Configuring Netplan${NC}"
+echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Configuring Netplan${NC}"
 
 netplanPath="/etc/netplan/00-eth0.yaml"
 mv $netplanPath $netplanPath".old"
@@ -56,7 +57,7 @@ network:
 EOF
 netplan apply 2> /dev/null > /dev/null
 
-echo -e "${BLUE}    KDC: ${YELLOW}Configuring Hosts File${NC}"
+echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Configuring Hosts File${NC}"
 
 hostsPath="/etc/hosts"
 cat /dev/null > $hostsPath
@@ -74,7 +75,7 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 EOF
 
-echo -e "${BLUE}    KDC: ${YELLOW}Configuring Hostname${NC}"
+echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Configuring Hostname${NC}"
 
 hostnamePath="/etc/hostname"
 cat /dev/null > $hostnamePath
@@ -91,13 +92,37 @@ nameserver 8.8.8.8
 search biodesign$lowerGroupCode.lan
 EOF
 
-echo -e "${BLUE}    KDC: ${YELLOW}Provisioning the Realm${NC}"
+echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Provisioning the Realm${NC}"
 
 rm -f /etc/samba/smb.conf /etc/samba/smb.conf.old
 rm -f /etc/krb5.conf /etc/krb5.conf.old
 samba-tool domain provision --realm "BIODESIGN$upperGroupCode.LAN" --domain "BIODESIGN$upperGroupCode" --adminpass "SmL12345**" --server-role "dc" --dns-backend "SAMBA_INTERNAL" --quiet 2> /dev/null > /dev/null
 
-echo -e "${BLUE}    KDC: ${YELLOW}Configuring Kerberos Authentication Settings${NC}"
+sambaPath="/etc/samba/smb.conf"
+rm -f $sambaPath
+touch $sambaPath
+chmod 644 $sambaPath
+cat > $sambaPath << EOF
+# Global parameters
+[global]
+        dns forwarder = 8.8.8.8
+        netbios name = VMLS1
+        realm = BIODESIGN$upperGroupCode.LAN
+        server role = active directory domain controller
+        workgroup = BIODESIGN$upperGroupCode
+        ldap server require strong auth = no
+
+[sysvol]
+        path = /var/lib/samba/sysvol
+        read only = No
+
+[netlogon]
+        path = /var/lib/samba/sysvol/biodesign$lowerGroupCode.lan/scripts
+        read only = No
+
+EOF
+
+echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Configuring Kerberos Authentication Settings${NC}"
 
 kerberosPath="/etc/krb5.conf"
 touch $kerberosPath
@@ -120,7 +145,7 @@ cat > $kerberosPath << EOF
     vmLS1 =  BIODESIGN$upperGroupCode.LAN
 EOF
 
-echo -e "${BLUE}    KDC: ${YELLOW}Configuring DNS Settings${NC}"
+echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Configuring DNS Settings${NC}"
 
 systemctl mask smbd nmbd winbind 2> /dev/null > /dev/null
 systemctl disable smbd nmbd winbind 2> /dev/null > /dev/null
