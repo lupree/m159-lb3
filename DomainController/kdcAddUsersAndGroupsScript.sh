@@ -113,10 +113,10 @@ echo "$departmentData" | while IFS=',' read -r displayName department
 do
     if [ $department ]; then
     DN="OU=$upperGroupCode$displayName,OU=$upperGroupCode$department,OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN"
-    samba-tool ou create $DN  -U "administrator%SmL12345**" 2> /dev/null > /dev/null
+    samba-tool ou create $DN  -U "administrator%SmL12345**" # 2> /dev/null > /dev/null
     else
     DN="OU=$upperGroupCode$displayName,OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN"
-    samba-tool ou create $DN  -U "administrator%SmL12345**" 2> /dev/null > /dev/null
+    samba-tool ou create $DN  -U "administrator%SmL12345**" # 2> /dev/null > /dev/null
     fi
     echo -e "    ${YELLOW}  - $displayName${NC}"
 done
