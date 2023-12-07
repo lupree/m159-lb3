@@ -47,14 +47,14 @@ if ping -c 1 $kdcIP &> /dev/null; then
     echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Restarting KDC${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo reboot" 2> /dev/null > /dev/null
     until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
-        sleep 5
+        sleep 10
     done
     scp -o StrictHostKeyChecking=no ./DomainController/kdcPostRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPostRestartScript.sh 2> /dev/null > /dev/null
     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcPostRestartScript.sh; sudo /tmp/kdcPostRestartScript.sh -g $groupCode; sudo rm /tmp/kdcPostRestartScript.sh"
     echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Restarting KDC${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo reboot" 2> /dev/null > /dev/null
     until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
-        sleep 5
+        sleep 10
     done
     scp -o StrictHostKeyChecking=no ./DomainController/kdcAddUsersAndGroupsScript.sh vmadmin@$kdcIP:/tmp/kdcAddUsersAndGroupsScript.sh 2> /dev/null > /dev/null
     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcAddUsersAndGroupsScript.sh; sudo /tmp/kdcAddUsersAndGroupsScript.sh -g $groupCode; sudo rm /tmp/kdcAddUsersAndGroupsScript.sh"
@@ -76,7 +76,7 @@ if ping -c 1 $fileServerIP &> /dev/null; then
     echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Restarting Fileserver${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo reboot" 2> /dev/null > /dev/null
     until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$fileServerIP true 2> /dev/null > /dev/null; do 
-        sleep 5
+        sleep 10
     done
     scp -o StrictHostKeyChecking=no ./Fileserver/fileServerPostRestartScript.sh vmadmin@$fileServerIP:/tmp/fileServerPostRestartScript.sh 2> /dev/null > /dev/null
     echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Running Fileserver-Script${NC}"
@@ -84,7 +84,7 @@ if ping -c 1 $fileServerIP &> /dev/null; then
     echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Restarting Fileserver${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo reboot" 2> /dev/null > /dev/null
     until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$fileServerIP true 2> /dev/null > /dev/null; do 
-        sleep 5
+        sleep 10
     done
     result=$(ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "dig +short 'google.com'")
     if [[ $result =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
