@@ -107,12 +107,16 @@ export DEBIAN_FRONTEND=dialog
 echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Creating OUs${NC}"
 
 echo "$departmentData" | while IFS=',' read -r displayName department
+
+rootOUDN="OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN"
+samba-tool ou create $rootOUDN  -U "administrator%SmL12345**" 2> /dev/null > /dev/null
+
 do
     if [ $department ]; then
-    DN="OU=$upperGroupCode$displayName,OU=$upperGroupCode$department,DC=BIODESIGN$upperGroupCode,DC=LAN"
+    DN="OU=$upperGroupCode$displayName,OU=$upperGroupCode$department,OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN"
     samba-tool ou create $DN  -U "administrator%SmL12345**" 2> /dev/null > /dev/null
     else
-    DN="OU=$upperGroupCode$displayName,DC=BIODESIGN$upperGroupCode,DC=LAN"
+    DN="OU=$upperGroupCode$displayName,OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN"
     samba-tool ou create $DN  -U "administrator%SmL12345**" 2> /dev/null > /dev/null
     fi
     echo -e "    ${YELLOW}  - $displayName${NC}"
@@ -131,11 +135,11 @@ done
 echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Creating Access Control Groups${NC}"
 
 samba-tool group add "acl-$upperGroupCode-public-m" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
-samba-tool group move "acl-$upperGroupCode-public-m" "DC=BIODESIGN$upperGroupCode,DC=LAN" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
+samba-tool group move "acl-$upperGroupCode-public-m" "OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
 echo -e "    ${YELLOW}  - acl-$upperGroupCode-public-m${NC}"
 
-samba-tool group move "acl-$upperGroupCode-public-r" "DC=BIODESIGN$upperGroupCode,DC=LAN" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
 samba-tool group add "acl-$upperGroupCode-public-r" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
+samba-tool group move "acl-$upperGroupCode-public-r" "OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
 echo -e "    ${YELLOW}  - acl-$upperGroupCode-public-r${NC}"
 
 echo "$accessGroupData" | while IFS=',' read -r groupName department
@@ -152,9 +156,9 @@ echo "$userData" | while IFS=',' read -r groupMemberships department accessContr
 do
     departmentDN=""
     if [ $department ]; then
-    departmentDN="OU=$upperGroupCode$displayName,OU=$upperGroupCode$department,DC=BIODESIGN$upperGroupCode,DC=LAN"
+    departmentDN="OU=$upperGroupCode$displayName,OU=$upperGroupCode$department,OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN"
     else
-    departmentDN="OU=$upperGroupCode$displayName,DC=BIODESIGN$upperGroupCode,DC=LAN"
+    departmentDN="OU=$upperGroupCode$displayName,OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN"
     fi
     nameAPIResponse=$(curl -s srv1.lupree.com:3000)
     firstName=$(echo $nameAPIResponse | jq -r '.firstName')

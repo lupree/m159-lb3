@@ -93,7 +93,6 @@ if ping -c 1 $fileServerIP &> /dev/null; then
     sleep 5
     wait_for_ssh $fileServerIP
     scp -o StrictHostKeyChecking=no ./Fileserver/fileServerPostRestartScript.sh vmadmin@$fileServerIP:/tmp/fileServerPostRestartScript.sh 2> /dev/null > /dev/null
-    echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Running Fileserver-Script${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo chmod +x /tmp/fileServerPostRestartScript.sh; sudo /tmp/fileServerPostRestartScript.sh -g $groupCode; sudo rm /tmp/fileServerPostRestartScript.sh"
     echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Restarting Fileserver${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo reboot" 2> /dev/null > /dev/null
