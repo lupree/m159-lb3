@@ -164,5 +164,17 @@ do
 
     samba-tool user create "$userName" "SmL12345**" --given-name="$firstName" --surname="$lastName" --mail-address="$userEmail" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
     samba-tool user move "$userName" "$departmentDN" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
-    echo -e "                      ${YELLOW}  - $userEmail${NC}"
+    echo -e "                      ${YELLOW}  - $userEmail:${NC}"
+
+    IFS=';' read -ra groups <<< $groupMemberships
+
+    for group in "${$groups[@]}"; do
+        samba-tool group addmembers $group $userName -U "administrator%SmL12345**"
+    done
+
+    IFS=';' read -ra accessControllGroups <<< $accessControllGroupMemberships
+
+    for accessControllGroup in "${$accessControllGroups[@]}"; do
+        samba-tool group addmembers $accessControllGroup $userName -U "administrator%SmL12345**"
+    done
 done
