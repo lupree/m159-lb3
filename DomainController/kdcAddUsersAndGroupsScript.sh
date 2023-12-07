@@ -106,11 +106,10 @@ export DEBIAN_FRONTEND=dialog
 
 echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Creating OUs${NC}"
 
-echo "$departmentData" | while IFS=',' read -r displayName department
-
 rootOUDN="OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN"
 samba-tool ou create $rootOUDN  -U "administrator%SmL12345**" 2> /dev/null > /dev/null
 
+echo "$departmentData" | while IFS=',' read -r displayName department
 do
     if [ $department ]; then
     DN="OU=$upperGroupCode$displayName,OU=$upperGroupCode$department,OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN"
@@ -174,14 +173,14 @@ do
     echo -e "    ${YELLOW}      Group Memberships:${NC}"
     IFS=';' read -ra groups <<< $groupMemberships
     for group in "${groups[@]}"; do
-    samba-tool group addmembers $group $userName -U "administrator%SmL12345**"
+    samba-tool group addmembers $group $userName -U "administrator%SmL12345**" 2> /dev/null > /dev/null
     echo -e "    ${YELLOW}        - $group:${NC}"
     done
 
     echo -e "    ${YELLOW}      AccessControllGroup Memberships:${NC}"
     IFS=';' read -ra accessControllGroups <<< $accessControllGroupMemberships
     for accessControllGroup in "${accessControllGroups[@]}"; do
-    samba-tool group addmembers $accessControllGroup $userName -U "administrator%SmL12345**"
+    samba-tool group addmembers $accessControllGroup $userName -U "administrator%SmL12345**" 2> /dev/null > /dev/null
     echo -e "    ${YELLOW}        - $accessControllGroup:${NC}"
     done
 done
