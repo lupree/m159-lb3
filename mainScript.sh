@@ -13,6 +13,23 @@ fileServerIP='192.168.110.62'
 groupCode=''
 currentIP=$(hostname -I)
 
+wait_for_ssh() {
+    local host=$1
+    local timeout=300
+    local start_time=$(date +%s)
+
+    until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 "vmadmin@$host" true 2>/dev/null; do
+        sleep 10
+        local current_time=$(date +%s)
+        local elapsed_time=$((current_time - start_time))
+
+        if [ "$elapsed_time" -ge "$timeout" ]; then
+            echo -e "${BLUE}LP1 | $currentIP: ${RED}Connection to $host timed out.${NC}"
+            exit
+        fi
+    done
+}
+
 while getopts ":g:" option; do
     case $option in
         g)
@@ -37,7 +54,7 @@ ssh-keygen -t rsa -b 2048 -f "$HOME/.ssh/id_rsa" -N "" 2> /dev/null > /dev/null
 if ping -c 1 $kdcIP &> /dev/null; then
     echo -e "${BLUE}LP1 | $currentIP: ${YELLOW}Copying SSH Public Key to KDC${NC}"
     sshpass -p "sml12345" ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$kdcIP 2> /dev/null > /dev/null
-    
+
     scp -o StrictHostKeyChecking=no ./DomainController/kdcPreRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPreRestartScript.sh 2> /dev/null > /dev/null
     echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Running KDC-Script${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcPreRestartScript.sh; sudo /tmp/kdcPreRestartScript.sh -g $groupCode; sudo rm /tmp/kdcPreRestartScript.sh"
@@ -50,9 +67,7 @@ if ping -c 1 $kdcIP &> /dev/null; then
     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcPostRestartScript.sh; sudo /tmp/kdcPostRestartScript.sh -g $groupCode; sudo rm /tmp/kdcPostRestartScript.sh"
     echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Restarting KDC${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo reboot" 2> /dev/null > /dev/null
-    until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
-        sleep 10
-    done
+    wait_for_ssh $kdcIP
     scp -o StrictHostKeyChecking=no ./DomainController/kdcAddUsersAndGroupsScript.sh vmadmin@$kdcIP:/tmp/kdcAddUsersAndGroupsScript.sh 2> /dev/null > /dev/null
     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcAddUsersAndGroupsScript.sh; sudo /tmp/kdcAddUsersAndGroupsScript.sh -g $groupCode; sudo rm /tmp/kdcAddUsersAndGroupsScript.sh"
     result=$(ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "dig +short 'google.com'")
@@ -75,17 +90,13 @@ if ping -c 1 $fileServerIP &> /dev/null; then
     ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo chmod +x /tmp/fileServerPreRestartScript.sh; sudo /tmp/fileServerPreRestartScript.sh -g $groupCode; sudo rm /tmp/fileServerPreRestartScript.sh"
     echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Restarting Fileserver${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo reboot" 2> /dev/null > /dev/null
-    until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$fileServerIP true 2> /dev/null > /dev/null; do 
-        sleep 10
-    done
+    wait_for_ssh $fileServerIP
     scp -o StrictHostKeyChecking=no ./Fileserver/fileServerPostRestartScript.sh vmadmin@$fileServerIP:/tmp/fileServerPostRestartScript.sh 2> /dev/null > /dev/null
     echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Running Fileserver-Script${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo chmod +x /tmp/fileServerPostRestartScript.sh; sudo /tmp/fileServerPostRestartScript.sh -g $groupCode; sudo rm /tmp/fileServerPostRestartScript.sh"
     echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Restarting Fileserver${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo reboot" 2> /dev/null > /dev/null
-    until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$fileServerIP true 2> /dev/null > /dev/null; do 
-        sleep 10
-    done
+    wait_for_ssh $fileServerIP
     result=$(ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "dig +short 'google.com'")
     if [[ $result =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
         echo -e "${BLUE}LP1 | $currentIP: ${GREEN}Fileserver-Script has run successfully${NC}"
