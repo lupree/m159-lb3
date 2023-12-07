@@ -167,14 +167,12 @@ do
     echo -e "                      ${YELLOW}  - $userEmail:${NC}"
 
     IFS=';' read -ra groups <<< $groupMemberships
-
-    for group in "${$groups[@]}"; do
+    for group in "${groups[@]}"; do
         samba-tool group addmembers $group $userName -U "administrator%SmL12345**"
     done
 
     IFS=';' read -ra accessControllGroups <<< $accessControllGroupMemberships
-
-    for accessControllGroup in "${$accessControllGroups[@]}"; do
+    for accessControllGroup in "${accessControllGroups[@]}"; do
         samba-tool group addmembers $accessControllGroup $userName -U "administrator%SmL12345**"
     done
 done
