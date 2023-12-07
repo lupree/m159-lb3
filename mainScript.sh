@@ -56,6 +56,8 @@ if ping -c 1 $kdcIP &> /dev/null; then
     until ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 vmadmin@$kdcIP true 2> /dev/null > /dev/null; do 
         sleep 5
     done
+    scp -o StrictHostKeyChecking=no ./DomainController/kdcAddUsersAndGroupsScript.sh vmadmin@$kdcIP:/tmp/kdcAddUsersAndGroupsScript.sh 2> /dev/null > /dev/null
+    ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcAddUsersAndGroupsScript.sh; sudo /tmp/kdcAddUsersAndGroupsScript.sh -g $groupCode; sudo rm /tmp/kdcAddUsersAndGroupsScript.sh"
     result=$(ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "dig +short 'google.com'")
     if [[ $result =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
         echo -e "${BLUE}LP1 | $currentIP: ${GREEN}KDC-Script has run successfully${NC}"
