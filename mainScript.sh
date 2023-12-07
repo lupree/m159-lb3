@@ -34,13 +34,10 @@ rm -f "$HOME/.ssh/id_rsa.pub"
 
 ssh-keygen -t rsa -b 2048 -f "$HOME/.ssh/id_rsa" -N "" 2> /dev/null > /dev/null
 
-echo -e "${BLUE}LP1 | $currentIP: ${YELLOW}Copying SSH Public Key to KDC${NC}"
-sshpass -p "sml12345" ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$kdcIP 2> /dev/null > /dev/null
-
-echo -e "${BLUE}LP1 | $currentIP: ${YELLOW}Copying SSH Public Key to File Server${NC}"
-sshpass -p "sml12345" ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$fileServerIP 2> /dev/null > /dev/null
-
 if ping -c 1 $kdcIP &> /dev/null; then
+    echo -e "${BLUE}LP1 | $currentIP: ${YELLOW}Copying SSH Public Key to KDC${NC}"
+    sshpass -p "sml12345" ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$kdcIP 2> /dev/null > /dev/null
+    
     scp -o StrictHostKeyChecking=no ./DomainController/kdcPreRestartScript.sh vmadmin@$kdcIP:/tmp/kdcPreRestartScript.sh 2> /dev/null > /dev/null
     echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Running KDC-Script${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$kdcIP "sudo chmod +x /tmp/kdcPreRestartScript.sh; sudo /tmp/kdcPreRestartScript.sh -g $groupCode; sudo rm /tmp/kdcPreRestartScript.sh"
@@ -70,6 +67,9 @@ else
 fi
 
 if ping -c 1 $fileServerIP &> /dev/null; then
+    echo -e "${BLUE}LP1 | $currentIP: ${YELLOW}Copying SSH Public Key to File Server${NC}"
+    sshpass -p "sml12345" ssh-copy-id -o StrictHostKeyChecking=no vmadmin@$fileServerIP 2> /dev/null > /dev/null
+
     scp -o StrictHostKeyChecking=no ./Fileserver/fileServerPreRestartScript.sh vmadmin@$fileServerIP:/tmp/fileServerPreRestartScript.sh 2> /dev/null > /dev/null
     echo -e "${BLUE}LP1 | $currentIP: ${BLUE}Running Fileserver-Script${NC}"
     ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo chmod +x /tmp/fileServerPreRestartScript.sh; sudo /tmp/fileServerPreRestartScript.sh -g $groupCode; sudo rm /tmp/fileServerPreRestartScript.sh"
