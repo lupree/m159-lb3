@@ -1,11 +1,5 @@
 #!/bin/bash
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\e[0;34m'
-NC='\033[0m'
-
 groupCode=''
 
 while getopts ":g:" option; do
@@ -14,7 +8,7 @@ while getopts ":g:" option; do
         if [ ${#OPTARG} -eq 2 ] && [ -n "$OPTARG" ]; then
         groupCode=$OPTARG
         else
-        echo -e "${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
+        echo -e "Invalid groupCode. It must be 2 characters long and not empty"
         exit
         fi;;
     esac
@@ -32,7 +26,7 @@ kundendienst
 werkstatt
 public'
 
-echo -e "${BLUE}    FS  | $currentIP: ${YELLOW}Creating Shares${NC}"
+echo -e "    FS  | $currentIP: Creating Shares"
 
 rootShareName="${upperGroupCode}Share"
 rootSharePath="/$rootShareName"
@@ -53,5 +47,5 @@ do
     chgrp "BIODESIGN$upperGroupCode\Domain Admins" $sharePath
 
     net conf addshare $rootShareName $rootSharePath writeable=y guest_ok=n "$rootShareName"
-    net conf setparm $rootShareName "browsable" "yes"    echo -e "    ${YELLOW}  - $shareDisplayName ($sharePath)${NC}"
+    net conf setparm $rootShareName "browsable" "yes"    echo -e "      - $shareDisplayName ($sharePath)"
 done

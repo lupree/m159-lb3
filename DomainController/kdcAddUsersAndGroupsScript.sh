@@ -1,11 +1,5 @@
 #!/bin/bash
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\e[0;34m'
-NC='\033[0m'
-
 groupCode=''
 
 while getopts ":g:" option; do
@@ -14,7 +8,7 @@ while getopts ":g:" option; do
         if [ ${#OPTARG} -eq 2 ] && [ -n "$OPTARG" ]; then
         groupCode=$OPTARG
         else
-        echo -e "${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
+        echo -e "Invalid groupCode. It must be 2 characters long and not empty"
         exit
         fi;;
     esac
@@ -98,13 +92,13 @@ grp-$upperGroupCode-hr,HR,acl-$upperGroupCode-einkauf-r; acl-$upperGroupCode-pub
 grp-$upperGroupCode-gl,GL,acl-$upperGroupCode-einkauf-r; acl-$upperGroupCode-public-r; acl-$upperGroupCode-verkauf-r; acl-$upperGroupCode-finanzen-r; acl-$upperGroupCode-kundendienst-r; acl-$upperGroupCode-public-m; acl-$upperGroupCode-hr-r; acl-$upperGroupCode-werkstatt-r; acl-$upperGroupCode-gl-m; acl-$upperGroupCode-gl-r
 grp-$upperGroupCode-gl,GL,acl-$upperGroupCode-einkauf-r; acl-$upperGroupCode-public-r; acl-$upperGroupCode-verkauf-r; acl-$upperGroupCode-finanzen-r; acl-$upperGroupCode-kundendienst-r; acl-$upperGroupCode-public-m; acl-$upperGroupCode-hr-r; acl-$upperGroupCode-werkstatt-r; acl-$upperGroupCode-gl-m; acl-$upperGroupCode-gl-r"
 
-echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Installing Packages (This might take a few Minutes)${NC}"
+echo -e "    KDC | $currentIP: Installing Packages (This might take a few Minutes)"
 
 export DEBIAN_FRONTEND=noninteractive
 apt install -y jq 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
-echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Creating OUs${NC}"
+echo -e "    KDC | $currentIP: Creating OUs"
 
 rootOUDN="OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN"
 samba-tool ou create $rootOUDN  -U "administrator%SmL12345**" 2> /dev/null > /dev/null
@@ -118,38 +112,38 @@ do
     DN="OU=$upperGroupCode$displayName,OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN"
     samba-tool ou create $DN  -U "administrator%SmL12345**" # 2> /dev/null > /dev/null
     fi
-    echo -e "    ${YELLOW}  - $displayName${NC}"
+    echo -e "      - $displayName"
 done
 
-echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Creating Groups${NC}"
+echo -e "    KDC | $currentIP: Creating Groups"
 
 echo "$groupData" | while IFS=',' read -r groupName department
 do
     departmentDN=$(samba-tool ou list | grep $department | cut -d "=" -f 2)
     samba-tool group add "$groupName" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
     samba-tool group move "$groupName" "$departmentDN" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
-    echo -e "    ${YELLOW}  - $groupName${NC}"
+    echo -e "      - $groupName"
 done
 
-echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Creating Access Control Groups${NC}"
+echo -e "    KDC | $currentIP: Creating Access Control Groups"
 
 samba-tool group add "acl-$upperGroupCode-public-m" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
 samba-tool group move "acl-$upperGroupCode-public-m" "OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
-echo -e "    ${YELLOW}  - acl-$upperGroupCode-public-m${NC}"
+echo -e "      - acl-$upperGroupCode-public-m"
 
 samba-tool group add "acl-$upperGroupCode-public-r" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
 samba-tool group move "acl-$upperGroupCode-public-r" "OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
-echo -e "    ${YELLOW}  - acl-$upperGroupCode-public-r${NC}"
+echo -e "      - acl-$upperGroupCode-public-r"
 
 echo "$accessGroupData" | while IFS=',' read -r groupName department
 do
     departmentDN=$(samba-tool ou list | grep $department | cut -d "=" -f 2)
     samba-tool group add "$groupName" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
     samba-tool group move "$groupName" "$departmentDN" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
-    echo -e "    ${YELLOW}  - $groupName${NC}"
+    echo -e "      - $groupName"
 done
 
-echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Creating Users${NC}"
+echo -e "    KDC | $currentIP: Creating Users"
 
 echo "$userData" | while IFS=',' read -r groupMemberships department accessControllGroupMemberships
 do
@@ -167,20 +161,20 @@ do
 
     samba-tool user create "$userName" "SmL12345**" --given-name="$firstName" --surname="$lastName" --mail-address="$userEmail" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
     samba-tool user move "$userName" "$departmentDN" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
-    echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Creating OUs${NC}"
-    echo -e "    ${YELLOW}  - $userEmail:${NC}"
+    echo -e "    KDC | $currentIP: Creating OUs"
+    echo -e "      - $userEmail:"
 
-    echo -e "    ${YELLOW}      Group Memberships:${NC}"
+    echo -e "          Group Memberships:"
     IFS=';' read -ra groups <<< $groupMemberships
     for group in "${groups[@]}"; do
     samba-tool group addmembers $group $userName -U "administrator%SmL12345**" 2> /dev/null > /dev/null
-    echo -e "    ${YELLOW}        - $group:${NC}"
+    echo -e "            - $group:"
     done
 
-    echo -e "    ${YELLOW}      AccessControllGroup Memberships:${NC}"
+    echo -e "          AccessControllGroup Memberships:"
     IFS=';' read -ra accessControllGroups <<< $accessControllGroupMemberships
     for accessControllGroup in "${accessControllGroups[@]}"; do
     samba-tool group addmembers $accessControllGroup $userName -U "administrator%SmL12345**" 2> /dev/null > /dev/null
-    echo -e "    ${YELLOW}        - $accessControllGroup:${NC}"
+    echo -e "            - $accessControllGroup:"
     done
 done

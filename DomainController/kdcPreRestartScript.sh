@@ -15,7 +15,7 @@ while getopts ":g:" option; do
             if [ ${#OPTARG} -eq 2 ] && [ -n "$OPTARG" ]; then
                 groupCode=$OPTARG
             else
-                echo -e "${BLUE}    KDC | $currentIP: ${RED}Invalid groupCode. It must be 2 characters long and not empty${NC}"
+                echo -e "    KDC | $currentIP: Invalid groupCode. It must be 2 characters long and not empty"
                 exit
             fi;;
     esac
@@ -25,7 +25,7 @@ lowerGroupCode=$(echo $groupCode | tr '[:upper:]' '[:lower:]')
 upperGroupCode=$(echo $groupCode | tr '[:lower:]' '[:upper:]')
 
 
-echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Updating Packages (This might take a few Minutes)${NC}"
+echo -e "    KDC | $currentIP: Updating Packages (This might take a few Minutes)"
 
 export DEBIAN_FRONTEND=noninteractive
 apt update 2> /dev/null > /dev/null
@@ -33,7 +33,7 @@ apt upgrade -y 2> /dev/null > /dev/null
 apt install -y jq 2> /dev/null > /dev/null
 export DEBIAN_FRONTEND=dialog
 
-echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Configuring Netplan${NC}"
+echo -e "    KDC | $currentIP: Configuring Netplan"
 
 netplanPath="/etc/netplan/00-eth0.yaml"
 mv $netplanPath $netplanPath".old"
@@ -58,7 +58,7 @@ network:
 EOF
 netplan apply 2> /dev/null > /dev/null
 
-echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Configuring Hosts File${NC}"
+echo -e "    KDC | $currentIP: Configuring Hosts File"
 
 hostsPath="/etc/hosts"
 cat /dev/null > $hostsPath
@@ -76,7 +76,7 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 EOF
 
-echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Configuring Hostname${NC}"
+echo -e "    KDC | $currentIP: Configuring Hostname"
 
 hostnamePath="/etc/hostname"
 cat /dev/null > $hostnamePath
@@ -93,7 +93,7 @@ nameserver 8.8.8.8
 search biodesign$lowerGroupCode.lan
 EOF
 
-echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Provisioning the Realm${NC}"
+echo -e "    KDC | $currentIP: Provisioning the Realm"
 
 rm -f /etc/samba/smb.conf /etc/samba/smb.conf.old
 rm -f /etc/krb5.conf /etc/krb5.conf.old
@@ -123,7 +123,7 @@ cat > $sambaPath << EOF
 
 EOF
 
-echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Configuring Kerberos Authentication Settings${NC}"
+echo -e "    KDC | $currentIP: Configuring Kerberos Authentication Settings"
 
 kerberosPath="/etc/krb5.conf"
 touch $kerberosPath
@@ -146,7 +146,7 @@ cat > $kerberosPath << EOF
     vmLS1 =  BIODESIGN$upperGroupCode.LAN
 EOF
 
-echo -e "${BLUE}    KDC | $currentIP: ${YELLOW}Configuring DNS Settings${NC}"
+echo -e "    KDC | $currentIP: Configuring DNS Settings"
 
 systemctl mask smbd nmbd winbind 2> /dev/null > /dev/null
 systemctl disable smbd nmbd winbind 2> /dev/null > /dev/null
