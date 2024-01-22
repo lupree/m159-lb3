@@ -153,7 +153,7 @@ do
     else
     departmentDN="OU=$upperGroupCode$displayName,OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN"
     fi
-    nameAPIResponse=$(curl -s srv1.lupree.com:3000)
+    nameAPIResponse=$(curl -s https://names.lupree.dev/api/trpc/names.getRandomNames)
     firstName=$(echo $nameAPIResponse | jq -r '.result.data.json.firstName')
     lastName=$(echo $nameAPIResponse | jq -r '.result.data.json.lastName')
     userName=$(echo "$firstName.$lastName-$upperGroupCode" | tr '[:upper:]' '[:lower:]')
