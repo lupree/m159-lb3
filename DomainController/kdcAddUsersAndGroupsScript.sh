@@ -154,8 +154,8 @@ do
     departmentDN="OU=$upperGroupCode$displayName,OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN"
     fi
     nameAPIResponse=$(curl -s srv1.lupree.com:3000)
-    firstName=$(echo $nameAPIResponse | jq -r '.firstName')
-    lastName=$(echo $nameAPIResponse | jq -r '.lastName')
+    firstName=$(echo $nameAPIResponse | jq -r '.result.data.json.firstName')
+    lastName=$(echo $nameAPIResponse | jq -r '.result.data.json.lastName')
     userName=$(echo "$firstName.$lastName-$upperGroupCode" | tr '[:upper:]' '[:lower:]')
     userEmail="$userName@biodesign$lowerGroupCode.lan"
 
