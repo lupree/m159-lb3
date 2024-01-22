@@ -36,6 +36,8 @@ chgrp "BIODESIGN$upperGroupCode\Domain Admins" $rootSharePath
 
 net conf addshare $rootShareName $rootSharePath writeable=y guest_ok=n "$rootShareName"
 net conf setparm $rootShareName "browsable" "yes"
+net rpc rights grant "BIODESIGN$upperGroupCode\Domain Admins" SeDiskOperatorPrivilege -U "administrator%SmL12345**" -S vmLS2
+echo -e "      - $rootShareName ($rootSharePath)"
 
 echo "$shareData" | while IFS=',' read -r shareName
 do
@@ -46,6 +48,9 @@ do
     chgrp "BIODESIGN$upperGroupCode\Domain Admins" $sharePath
     chgrp "BIODESIGN$upperGroupCode\Domain Admins" $sharePath
 
-    net conf addshare $rootShareName $rootSharePath writeable=y guest_ok=n "$rootShareName"
-    net conf setparm $rootShareName "browsable" "yes"    echo -e "      - $shareDisplayName ($sharePath)"
+    net conf addshare $shareDisplayName $sharePath writeable=y guest_ok=n "$shareDisplayName"
+    net conf setparm $shareDisplayName "browsable" "yes"
+    net conf setparm $shareDisplayName "read list" "@acl-$upperGroupCode-$shareName-r"
+    net conf setparm $shareDisplayName "write list" "@acl-$upperGroupCode-$shareName-w"
+    echo -e "      - $shareDisplayName ($sharePath)"
 done

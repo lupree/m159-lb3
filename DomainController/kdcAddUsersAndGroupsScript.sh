@@ -107,10 +107,10 @@ echo "$departmentData" | while IFS=',' read -r displayName department
 do
     if [ $department ]; then
     DN="OU=$upperGroupCode$displayName,OU=$upperGroupCode$department,OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN"
-    samba-tool ou create $DN  -U "administrator%SmL12345**" # 2> /dev/null > /dev/null
+    samba-tool ou create $DN  -U "administrator%SmL12345**" 2> /dev/null > /dev/null
     else
     DN="OU=$upperGroupCode$displayName,OU=Biodesign$upperGroupCode,DC=BIODESIGN$upperGroupCode,DC=LAN"
-    samba-tool ou create $DN  -U "administrator%SmL12345**" # 2> /dev/null > /dev/null
+    samba-tool ou create $DN  -U "administrator%SmL12345**" 2> /dev/null > /dev/null
     fi
     echo -e "      - $displayName"
 done
@@ -161,20 +161,13 @@ do
 
     samba-tool user create "$userName" "SmL12345**" --given-name="$firstName" --surname="$lastName" --mail-address="$userEmail" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
     samba-tool user move "$userName" "$departmentDN" -U "administrator%SmL12345**" 2> /dev/null > /dev/null
-    echo -e "    KDC | $currentIP: Creating OUs"
-    echo -e "      - $userEmail:"
-
-    echo -e "          Group Memberships:"
+    echo -e "      - $userEmail"
     IFS=';' read -ra groups <<< $groupMemberships
     for group in "${groups[@]}"; do
     samba-tool group addmembers $group $userName -U "administrator%SmL12345**" 2> /dev/null > /dev/null
-    echo -e "            - $group:"
     done
-
-    echo -e "          AccessControllGroup Memberships:"
     IFS=';' read -ra accessControllGroups <<< $accessControllGroupMemberships
     for accessControllGroup in "${accessControllGroups[@]}"; do
     samba-tool group addmembers $accessControllGroup $userName -U "administrator%SmL12345**" 2> /dev/null > /dev/null
-    echo -e "            - $accessControllGroup:"
     done
 done

@@ -92,6 +92,12 @@ if ping -c 1 $fileServerIP &> /dev/null; then
     ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo reboot" 2> /dev/null > /dev/null
     sleep 5
     wait_for_ssh $fileServerIP
+    scp -o StrictHostKeyChecking=no ./Fileserver/fileServerShareScript.sh vmadmin@$fileServerIP:/tmp/fileServerShareScript.sh 2> /dev/null > /dev/null
+    ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo chmod +x /tmp/fileServerShareScript.sh; sudo /tmp/fileServerShareScript.sh -g $groupCode; sudo rm /tmp/fileServerShareScript.sh"
+    echo -e "LP1 | $currentIP: Restarting Fileserver"
+    ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "sudo reboot" 2> /dev/null > /dev/null
+    sleep 5
+    wait_for_ssh $fileServerIP
     result=$(ssh -o StrictHostKeyChecking=no vmadmin@$fileServerIP "dig +short 'google.com'")
     if [[ $result =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
         echo -e "LP1 | $currentIP: ${GREEN}Fileserver-Script has run successfully"
